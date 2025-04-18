@@ -1,13 +1,11 @@
 import Link from "next/link";
-import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import DefaultProps, { RouteProps } from "@/schemas/defaultComponentsProps";
+import { LinkProps } from "next/link";
 
 
-export function Root(
-    { className, children, ...props }: 
-    Readonly<{ className?: string, children?: ReactNode[] | ReactNode, props?: any[] }>
-) 
+export function Root({ className, children, ...props }: DefaultProps) 
 {
     return (
         <nav className={cn("flex", className)} {...props}>
@@ -16,16 +14,7 @@ export function Root(
     );
 }
 
-export function Route(
-    { href, target="_self", className, children, ...props }: 
-    Readonly<{ 
-        href: string, 
-        target?: string, 
-        className?: string, 
-        children?: ReactNode[] | ReactNode, 
-        props?: any[] 
-    }>
-) 
+export function Route({ href, target="_self", className, children, ...props }: RouteProps) 
 {
     return (
         <Link 
