@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import DefaultProps, { RouteProps } from "@/schemas/defaultComponentsProps";
+import DefaultProps, { RouteProps } from "@/schemas/props";
 import { Route } from "@/components/navbars/navbar";
 import { ReactNode } from "react";
 
