@@ -27,15 +27,17 @@ export class LocalTable extends AbstractLocalTable {
 
     public static define(name: string)
     {
-        /*
-            Define an empty table on localStorage with the given a name. 
+        /** 
+            * Define an empty table on localStorage with the given a name. 
+            * @param name - the table name on localStorage to define.
         */
         localStorage.setItem(name, JSON.stringify([]));
     }
     public getAll<TableLine extends BaseTableLine>(): TableLine[] 
     {
-        /*
-            Get the whole table from localStorage given the table name. 
+        /** 
+            * Gets the whole table from localStorage.
+            * @returns The whole table. 
         */
 
         let string_table = localStorage.getItem(this.name);
@@ -51,8 +53,9 @@ export class LocalTable extends AbstractLocalTable {
         <TableLineWithoutId extends Omit<BaseTableLine, "id">>
         (value: TableLineWithoutId[]) 
     {
-        /*
-            Set all lines of the table, given the table name and a new value. 
+        /** 
+            * Sets all lines of the table, given a new value. 
+            * @param value - tables lines without an id field.
         */
 
         type TableLine = TableLineWithoutId & BaseTableLine; 
