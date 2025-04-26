@@ -48,17 +48,17 @@ export class LocalTable extends AbstractLocalTable {
         return table;
     }
     public setAll
-        <TableLine extends Omit<BaseTableLine, "id">>
-        (value: TableLine[]) 
+        <TableLineWithoutId extends Omit<BaseTableLine, "id">>
+        (value: TableLineWithoutId[]) 
     {
         /*
             Set all lines of the table, given the table name and a new value. 
         */
 
-        type TableLineWithId = TableLine & BaseTableLine; 
+        type TableLine = TableLineWithoutId & BaseTableLine; 
 
         const newTable = value.map((v) => {
-            let newTableLine: TableLineWithId = { id: this.idTrack, ...v }; 
+            let newTableLine: TableLine = { id: this.idTrack, ...v }; 
             this.idTrack = this.idTrack + 1;
 
             return newTableLine;

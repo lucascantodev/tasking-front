@@ -2,13 +2,25 @@
 
 import Footer from '@/components/layout/sections/footer/footer';
 import Image from 'next/image';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { FaGoogle } from 'react-icons/fa';
+
+import { LocalTable } from '@/lib/localTable/localTable';
+
 
 export default function Home() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+
+  // Define dev tables on localStorage
+  useEffect(() => {
+    LocalTable.define("user");
+    LocalTable.define("workspace");
+    LocalTable.define("list");
+    LocalTable.define("task");
+
+  }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
