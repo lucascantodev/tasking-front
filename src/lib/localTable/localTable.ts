@@ -38,12 +38,13 @@ export class LocalTable extends AbstractLocalTable {
         /** 
             * Gets the whole table from localStorage.
             * @returns The whole table. 
+            * @throws Error if table couldn't be found.
         */
 
         let string_table = localStorage.getItem(this.name);
 
         if (!string_table) 
-            throw `localStorage.getItem with table ${this.name} didn't return.`; 
+            throw Error(`localStorage.getItem with table ${this.name} didn't return.`); 
 
         let table = JSON.parse(string_table);
 
