@@ -1,4 +1,4 @@
-export interface BaseTableLine {
+export interface BaseTableLine extends Object {
     id: number,
 }
 
@@ -56,13 +56,14 @@ export class LocalTable extends AbstractLocalTable {
     {
         /** 
             * Sets all lines of the table, given a new value. 
+            * Be careful, if you pass data with an 'id' field the method will override them.
             * @param value - tables lines without an id field.
         */
 
         type TableLine = TableLineWithoutId & BaseTableLine; 
 
         const newTable = value.map((v) => {
-            let newTableLine: TableLine = { id: this.idTrack, ...v }; 
+            let newTableLine: TableLine = { ...v, id: this.idTrack }; 
             this.idTrack = this.idTrack + 1;
 
             return newTableLine;
