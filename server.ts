@@ -1,10 +1,10 @@
 // Usamos json-server para criar rapidamente uma API REST sem backend real
 // Ideal para prototipação e desenvolvimento front-end independente
-const jsonServer = require("json-server");
+import jsonServer from "json-server";
 
 // CORS é necessário para evitar bloqueios de segurança no navegador
 // quando o frontend (porta 3000) acessa nossa API (porta 3001)
-const cors = require("cors");
+import cors from "cors";
 
 // Criamos um servidor Express customizável em vez de usar o CLI padrão
 // para termos controle sobre middlewares e comportamentos
