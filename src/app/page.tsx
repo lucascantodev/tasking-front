@@ -2,30 +2,42 @@
 
 import Footer from '@/components/layout/sections/footer/footer';
 import Image from 'next/image';
-import { useState, FormEvent, useEffect } from 'react';
+import { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
+import { useForm } from 'react-hook-form';
+import { Login_Type } from '@/dto/login';
 
-import { LocalTable } from '@/lib/localTable/localTable';
+export default function Login() {
+  const router = useRouter();
+  const { login } = useAuth();
+  const [error, setError] = useState("");
 
+  const { handleSubmit, register, formState: { errors, isSubmitting }, reset } = useForm<Login_Type>({
+    defaultValues: {
+      email: "john@example.com",
+      password: "123456",
+      rememberMe: false
+    }
+  });
 
-export default function Home() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const onSubmit = async (data: Login_Type): Promise<void> => {
+    setError("");
 
-  // Define dev tables on localStorage
-  useEffect(() => {
-    LocalTable.define("user");
-    LocalTable.define("workspace");
-    LocalTable.define("list");
-    LocalTable.define("task");
-
-  }, []);
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    // submit logic
-    console.log({ email, password, rememberMe });
+    try {
+      await login({
+        email: data.email,
+        password: data.password
+      });
+      
+      console.log("✅Login successful!");
+      console.log("⏩Redirecting to workspaces...");
+      router.push('/workspaces');
+    } catch (error) {
+      console.error("❌Login failed!", error);
+      setError(error instanceof Error ? error.message : "Failed to login. Please try again.");
+    }
   };
 
   return (
@@ -42,19 +54,25 @@ export default function Home() {
           <p className='text-zinc-400'>Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className='space-y-6'>
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <div className='space-y-2'>
             <label htmlFor='email' className='block text-sm font-medium'>
               Email
             </label>
             <input
-              id='email'
-              type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="email"
+              type="email"
               required
-              className='minimal-input'
-              placeholder='your@email.com'
+              {...register("email")}
+              autoComplete="email"
+              className="appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Email address"
             />
           </div>
           <div className='space-y-2'>
@@ -67,13 +85,13 @@ export default function Home() {
               </a>
             </div>
             <input
-              id='password'
-              type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              id="password"
+              type="password"
               required
-              className='minimal-input'
-              placeholder='Your Password'
+              {...register("password")}
+              autoComplete="current-password"
+              className="appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Password"
             />
           </div>
 
@@ -81,8 +99,7 @@ export default function Home() {
             <input
               id='remember-me'
               type='checkbox'
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+              {...register("rememberMe")}
               className='h-4 w-4 rounded bg-zinc-700 border-zinc-600 text-blue-500 focus:ring-blue-500'
             />
             <label
@@ -96,9 +113,10 @@ export default function Home() {
           <div>
             <button
               type='submit'
-              className='w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+              disabled={isSubmitting}
+              className='w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50'
             >
-              Sign in
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
@@ -112,8 +130,9 @@ export default function Home() {
         <div className='grid grid-cols-2'>
           <button
             type='button'
+            disabled={isSubmitting}
             className='gray-button-minimal col-span-2'
-            onClick={() => console.log('Google login')}
+            onClick={() => console.log('🚩🚩Google login')}
           >
             <FaGoogle />
             <span className='text-sm'>Google</span>

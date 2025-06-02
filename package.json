@@ -8,18 +8,23 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "server": "json-server --watch db.json --port 3001"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
     "@tabler/icons-react": "^3.31.0",
+    "@types/js-cookie": "^3.0.6",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "eslint-config-prettier": "^10.1.1",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.479.0",
-    "next": "15.2.2",
+    "next": "^15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.4",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
@@ -40,6 +45,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.37.4",
     "globals": "^16.0.0",
+    "json-server": "^1.0.0-beta.3",
     "tailwindcss": "^4",
     "typescript": "^5",
     "typescript-eslint": "^8.26.1"

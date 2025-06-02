@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
+import '@styles/globals.css';
 import Footer from '@/components/layout/sections/footer/footer';
 import Head from 'next/head';
+import { AuthProvider } from "@/contexts/auth-context";
+import { AuthErrorProvider } from "@/contexts/authError-context";
+import { WorkspacesProvider } from "@/contexts/workspaces-context";
+import { ListProvider } from "@/contexts/list-context";
+import { TasksProvider } from '@/contexts/tasks-context';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,7 +36,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-900`}
       >
-        {children}
+        <AuthProvider>
+          <TasksProvider>
+            <AuthErrorProvider>
+              <WorkspacesProvider>
+                <ListProvider>
+                  {children}
+                </ListProvider>
+              </WorkspacesProvider>
+            </AuthErrorProvider>
+          </TasksProvider>
+        </AuthProvider>
         <Footer />
       </body>
     </html>
