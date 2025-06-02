@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { IconLayoutDashboard, IconLoader, IconEdit, IconTrash, IconArrowLeft, IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 import workspaceService from "@/services/workspace.service";
-import workspace, { Workspace } from '@/schemas/workspace';
+import workspace, { Workspace } from '@/schemas/Workspace';
 import listService from "@/services/list.service";
 import taskService from "@/services/task.service";
-import { List } from "@/schemas/list";
-import { Task } from "@/schemas/task";
+import { List } from "@/schemas/List";
+import { Task } from "@/schemas/Task";
 
 export default function WorkspaceDetail({ params }: { params: { id: string } }) {
   const router = useRouter();

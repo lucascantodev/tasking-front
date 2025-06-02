@@ -1,4 +1,4 @@
-import { User } from '@/schemas/user';
+import { User } from '@/schemas/User';
 import axiosApi from '@/api/axiosApi';
 import axios from 'axios';
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { List } from '@/schemas/list';
+import { List } from '@/schemas/List';
 import listService from '@/services/list.service';
 import { useAuth } from '@/contexts/auth-context';
 

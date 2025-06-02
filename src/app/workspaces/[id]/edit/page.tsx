@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { Workspace } from "@/schemas/workspace";
+import { Workspace } from "@/schemas/Workspace";
 
 export default function EditWorkspace({ params }: { params: { id: string } }) {
   const router = useRouter();

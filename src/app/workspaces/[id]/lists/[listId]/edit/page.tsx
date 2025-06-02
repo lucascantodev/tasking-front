@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
 import { useList } from "@/contexts/list-context";
-import { List } from "@/schemas/list";
+import { List } from "@/schemas/List";
 
 export default function EditList({ params }: { params: { id: string; listId: string } }) {
   const router = useRouter();

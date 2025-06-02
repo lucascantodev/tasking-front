@@ -1,5 +1,5 @@
 import { BaseService } from './base.service';
-import list, { List } from '@/schemas/list';
+import list, { List } from '@/schemas/List';
 
 export class ListService extends BaseService<List> {
   private static instance: ListService;

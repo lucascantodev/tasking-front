@@ -1,6 +1,6 @@
 // src/services/workspace.service.ts
 import { BaseService } from './base.service';
-import workspace, { Workspace } from '@/schemas/workspace';
+import workspace, { Workspace } from '@/schemas/Workspace';
 
 export class WorkspaceService extends BaseService<Workspace> {
   private static instance: WorkspaceService;

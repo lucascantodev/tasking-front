@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Workspace } from '@/schemas/workspace';
+import { Workspace } from '@/schemas/Workspace';
 import workspaceService from '@/services/workspace.service';
 import { useAuth } from '@/contexts/auth-context';
 

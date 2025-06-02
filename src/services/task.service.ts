@@ -1,5 +1,5 @@
 import { BaseService } from './base.service';
-import task, { Task } from '@/schemas/task';
+import task, { Task } from '@/schemas/Task';
 import { useAuth } from '@/contexts/auth-context';
 
 export class TaskService extends BaseService<Task> {

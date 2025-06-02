@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
-import { Task } from '@/schemas/task';
+import { Task } from '@/schemas/Task';
 import taskService from '@/services/task.service';
 
 interface TasksContextType {
