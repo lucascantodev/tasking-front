@@ -11,12 +11,15 @@ export default function RootLayout({
   return (
     <>
       <Header />
-      <CreateNewSection href='/' labelText='Create a new Workspace!' buttonText={[
-        <span key={1} className='font-[700] text-[1rem]'>
-          Add a Workspace
-        </span>,
-        <IconPlus key={2} className='size-[1.5rem]' />,
-      ]}
+      <CreateNewSection
+        href='/'
+        labelText='Create a new Workspace!'
+        buttonText={[
+          <span key={1} className='font-[700] text-[1rem]'>
+            Add a Workspace
+          </span>,
+          <IconPlus key={2} className='size-[1.5rem]' />,
+        ]}
       />
       {children}
     </>

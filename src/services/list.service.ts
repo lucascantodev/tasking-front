@@ -21,22 +21,33 @@ export class ListService extends BaseService<List> {
     return super.getAll();
   }
 
-  public async getById(id: number, isAuthenticated: boolean): Promise<List | undefined> {
+  public async getById(
+    id: number,
+    isAuthenticated: boolean
+  ): Promise<List | undefined> {
     if (!isAuthenticated) return undefined;
     return super.getById(id);
   }
 
-  public async getByWorkspaceId(workspaceId: number, isAuthenticated: boolean): Promise<List[]> {
+  public async getByWorkspaceId(
+    workspaceId: number,
+    isAuthenticated: boolean
+  ): Promise<List[]> {
     if (!isAuthenticated) return [];
-    
-    const response = await fetch(`${this.API_URL}/${this.resource}?workspaceId=${workspaceId}`);
+
+    const response = await fetch(
+      `${this.API_URL}/${this.resource}?workspaceId=${workspaceId}`
+    );
     if (!response.ok) {
       throw new Error(`Failed to fetch lists for workspace ${workspaceId}`);
     }
     return response.json();
   }
 
-  public async create(newList: Omit<List, 'id'>, isAuthenticated: boolean): Promise<List> {
+  public async create(
+    newList: Omit<List, 'id'>,
+    isAuthenticated: boolean
+  ): Promise<List> {
     if (!isAuthenticated) {
       throw new Error('User must be authenticated to create a list');
     }
@@ -50,7 +61,10 @@ export class ListService extends BaseService<List> {
     }
   }
 
-  public async update(updatedList: List, isAuthenticated: boolean): Promise<List> {
+  public async update(
+    updatedList: List,
+    isAuthenticated: boolean
+  ): Promise<List> {
     if (!isAuthenticated) {
       throw new Error('User must be authenticated to update a list');
     }
@@ -72,4 +86,4 @@ export class ListService extends BaseService<List> {
   }
 }
 
-export default ListService.getInstance(); 
+export default ListService.getInstance();

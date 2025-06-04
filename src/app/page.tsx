@@ -12,31 +12,40 @@ import { Login_Type } from '@/dto/login';
 export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const { handleSubmit, register, formState: { errors, isSubmitting }, reset } = useForm<Login_Type>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<Login_Type>({
     defaultValues: {
-      email: "john@example.com",
-      password: "123456",
-      rememberMe: false
-    }
+      email: 'john@example.com',
+      password: '123456',
+      rememberMe: false,
+    },
   });
 
   const onSubmit = async (data: Login_Type): Promise<void> => {
-    setError("");
+    setError('');
 
     try {
       await login({
         email: data.email,
-        password: data.password
+        password: data.password,
       });
-      
-      console.log("✅Login successful!");
-      console.log("⏩Redirecting to workspaces...");
+
+      console.log('✅Login successful!');
+      console.log('⏩Redirecting to workspaces...');
       router.push('/workspaces');
     } catch (error) {
-      console.error("❌Login failed!", error);
-      setError(error instanceof Error ? error.message : "Failed to login. Please try again.");
+      console.error('❌Login failed!', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to login. Please try again.'
+      );
     }
   };
 
@@ -55,7 +64,7 @@ export default function Login() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-500 text-sm">
+          <div className='mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-500 text-sm'>
             {error}
           </div>
         )}
@@ -66,13 +75,13 @@ export default function Login() {
               Email
             </label>
             <input
-              id="email"
-              type="email"
+              id='email'
+              type='email'
               required
-              {...register("email")}
-              autoComplete="email"
-              className="appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Email address"
+              {...register('email')}
+              autoComplete='email'
+              className='appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
+              placeholder='Email address'
             />
           </div>
           <div className='space-y-2'>
@@ -85,13 +94,13 @@ export default function Login() {
               </a>
             </div>
             <input
-              id="password"
-              type="password"
+              id='password'
+              type='password'
               required
-              {...register("password")}
-              autoComplete="current-password"
-              className="appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Password"
+              {...register('password')}
+              autoComplete='current-password'
+              className='appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
+              placeholder='Password'
             />
           </div>
 
@@ -99,7 +108,7 @@ export default function Login() {
             <input
               id='remember-me'
               type='checkbox'
-              {...register("rememberMe")}
+              {...register('rememberMe')}
               className='h-4 w-4 rounded bg-zinc-700 border-zinc-600 text-blue-500 focus:ring-blue-500'
             />
             <label

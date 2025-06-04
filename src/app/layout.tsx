@@ -3,10 +3,10 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '@styles/globals.css';
 import Footer from '@/components/layout/sections/footer/footer';
 import Head from 'next/head';
-import { AuthProvider } from "@/contexts/auth-context";
-import { AuthErrorProvider } from "@/contexts/authError-context";
-import { WorkspacesProvider } from "@/contexts/workspaces-context";
-import { ListProvider } from "@/contexts/list-context";
+import { AuthProvider } from '@/contexts/auth-context';
+import { AuthErrorProvider } from '@/contexts/authError-context';
+import { WorkspacesProvider } from '@/contexts/workspaces-context';
+import { ListProvider } from '@/contexts/list-context';
 import { TasksProvider } from '@/contexts/tasks-context';
 
 const geistSans = Geist({
@@ -40,9 +40,7 @@ export default function RootLayout({
           <TasksProvider>
             <AuthErrorProvider>
               <WorkspacesProvider>
-                <ListProvider>
-                  {children}
-                </ListProvider>
+                <ListProvider>{children}</ListProvider>
               </WorkspacesProvider>
             </AuthErrorProvider>
           </TasksProvider>

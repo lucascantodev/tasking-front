@@ -22,12 +22,19 @@ export class WorkspaceService extends BaseService<Workspace> {
     return super.getAll();
   }
 
-  public async getById(id: number, isAuthenticated: boolean): Promise<Workspace | undefined> {
+  public async getById(
+    id: number,
+    isAuthenticated: boolean
+  ): Promise<Workspace | undefined> {
     if (!isAuthenticated) return undefined;
     return super.getById(id);
   }
 
-  public async create(newWorkspace: Omit<Workspace, 'id'>, isAuthenticated: boolean, user: any): Promise<Workspace> {
+  public async create(
+    newWorkspace: Omit<Workspace, 'id'>,
+    isAuthenticated: boolean,
+    user: any
+  ): Promise<Workspace> {
     if (!isAuthenticated || !user) {
       throw new Error('User must be authenticated to create a workspace');
     }
@@ -41,7 +48,10 @@ export class WorkspaceService extends BaseService<Workspace> {
     }
   }
 
-  public async update(updatedWorkspace: Workspace, isAuthenticated: boolean): Promise<Workspace> {
+  public async update(
+    updatedWorkspace: Workspace,
+    isAuthenticated: boolean
+  ): Promise<Workspace> {
     if (!isAuthenticated) {
       throw new Error('User must be authenticated to update a workspace');
     }

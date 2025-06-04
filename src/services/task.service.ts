@@ -28,8 +28,10 @@ export class TaskService extends BaseService<Task> {
   public async getByListId(listId: number): Promise<Task[]> {
     const { isAuthenticated } = useAuth();
     if (!isAuthenticated) return [];
-    
-    const response = await fetch(`${this.API_URL}/${this.resource}?listId=${listId}`);
+
+    const response = await fetch(
+      `${this.API_URL}/${this.resource}?listId=${listId}`
+    );
     if (!response.ok) {
       throw new Error(`Failed to fetch tasks for list ${listId}`);
     }
@@ -61,4 +63,4 @@ export class TaskService extends BaseService<Task> {
   }
 }
 
-export default TaskService.getInstance(); 
+export default TaskService.getInstance();

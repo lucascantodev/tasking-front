@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/schemas/User';
@@ -74,11 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -87,4 +83,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { List } from '@/schemas/List';
@@ -42,14 +42,14 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getListsByWorkspace = (workspaceId: number) => {
-    return lists.filter(list => list.workspaceId === workspaceId);
+    return lists.filter((list) => list.workspaceId === workspaceId);
   };
 
   const createList = async (list: Omit<List, 'id'>) => {
     try {
       setError(null);
       const newList = await listService.create(list, isAuthenticated);
-      setLists(prev => [...prev, newList]);
+      setLists((prev) => [...prev, newList]);
       return newList;
     } catch (err) {
       setError('Failed to create list');
@@ -62,9 +62,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       const updatedList = await listService.update(list, isAuthenticated);
-      setLists(prev => 
-        prev.map(l => l.id === list.id ? updatedList : l)
-      );
+      setLists((prev) => prev.map((l) => (l.id === list.id ? updatedList : l)));
       if (currentList?.id === list.id) {
         setCurrentList(updatedList);
       }
@@ -80,7 +78,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       await listService.delete(id, isAuthenticated);
-      setLists(prev => prev.filter(l => l.id !== id));
+      setLists((prev) => prev.filter((l) => l.id !== id));
       if (currentList?.id === id) {
         setCurrentList(null);
       }
@@ -108,11 +106,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     deleteList,
   };
 
-  return (
-    <ListContext.Provider value={value}>
-      {children}
-    </ListContext.Provider>
-  );
+  return <ListContext.Provider value={value}>{children}</ListContext.Provider>;
 }
 
 export function useList() {
@@ -121,4 +115,4 @@ export function useList() {
     throw new Error('useList must be used within a ListProvider');
   }
   return context;
-} 
+}

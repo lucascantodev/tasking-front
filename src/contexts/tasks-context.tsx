@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState } from 'react';
 import { Task } from '@/schemas/Task';
@@ -37,23 +37,21 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addTask = (task: Task) => {
-    setTasks(prev => [...prev, task]);
+    setTasks((prev) => [...prev, task]);
   };
 
   const updateTask = (id: number, updatedTask: Partial<Task>) => {
-    setTasks(prev =>
-      prev.map(task =>
-        task.id === id ? { ...task, ...updatedTask } : task
-      )
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, ...updatedTask } : task))
     );
   };
 
   const deleteTask = (id: number) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
+    setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
   const getTasksByListId = (listId: number) => {
-    return tasks.filter(task => task.listId === listId);
+    return tasks.filter((task) => task.listId === listId);
   };
 
   const value = {
@@ -68,9 +66,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <TasksContext.Provider value={value}>
-      {children}
-    </TasksContext.Provider>
+    <TasksContext.Provider value={value}>{children}</TasksContext.Provider>
   );
 }
 
@@ -80,4 +76,4 @@ export function useTasks() {
     throw new Error('useTasks must be used within a TasksProvider');
   }
   return context;
-} 
+}

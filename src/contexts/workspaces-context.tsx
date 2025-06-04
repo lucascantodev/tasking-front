@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Workspace } from '@/schemas/Workspace';
@@ -15,9 +15,15 @@ interface WorkspacesContextType {
   refreshWorkspaces: () => Promise<void>;
 }
 
-const WorkspacesContext = createContext<WorkspacesContextType | undefined>(undefined);
+const WorkspacesContext = createContext<WorkspacesContextType | undefined>(
+  undefined
+);
 
-export function WorkspacesProvider({ children }: { children: React.ReactNode }) {
+export function WorkspacesProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,19 +48,22 @@ export function WorkspacesProvider({ children }: { children: React.ReactNode }) 
   }, [isAuthenticated]);
 
   const addWorkspace = (workspace: Workspace) => {
-    setWorkspaces(prev => [...prev, workspace]);
+    setWorkspaces((prev) => [...prev, workspace]);
   };
 
-  const updateWorkspace = (id: number, updatedWorkspace: Partial<Workspace>) => {
-    setWorkspaces(prev =>
-      prev.map(workspace =>
+  const updateWorkspace = (
+    id: number,
+    updatedWorkspace: Partial<Workspace>
+  ) => {
+    setWorkspaces((prev) =>
+      prev.map((workspace) =>
         workspace.id === id ? { ...workspace, ...updatedWorkspace } : workspace
       )
     );
   };
 
   const deleteWorkspace = (id: number) => {
-    setWorkspaces(prev => prev.filter(workspace => workspace.id !== id));
+    setWorkspaces((prev) => prev.filter((workspace) => workspace.id !== id));
   };
 
   const value = {
@@ -80,4 +89,4 @@ export function useWorkspaces() {
     throw new Error('useWorkspaces must be used within a WorkspacesProvider');
   }
   return context;
-} 
+}

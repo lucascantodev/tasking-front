@@ -12,10 +12,15 @@ interface UserWithPassword extends User {
 }
 
 class AuthService {
-  async login(credentials: { email: string; password: string }): Promise<LoginResponse> {
+  async login(credentials: {
+    email: string;
+    password: string;
+  }): Promise<LoginResponse> {
     try {
       // Buscar usuário pelo email
-      const response = await axiosApi.get<UserWithPassword[]>(`/users?email=${credentials.email}`);
+      const response = await axiosApi.get<UserWithPassword[]>(
+        `/users?email=${credentials.email}`
+      );
       const users = response.data;
 
       if (users.length === 0) {
@@ -34,7 +39,7 @@ class AuthService {
 
       return {
         user,
-        token
+        token,
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -56,4 +61,4 @@ class AuthService {
   }
 }
 
-export default new AuthService(); 
+export default new AuthService();

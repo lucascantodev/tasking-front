@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Workspace } from '@/schemas/Workspace';
@@ -16,11 +16,15 @@ interface WorkspaceContextType {
   deleteWorkspace: (id: number) => Promise<void>;
 }
 
-const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
+  undefined
+);
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
+  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +46,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       const newWorkspace = await workspaceService.create(workspace);
-      setWorkspaces(prev => [...prev, newWorkspace]);
+      setWorkspaces((prev) => [...prev, newWorkspace]);
       return newWorkspace;
     } catch (err) {
       setError('Failed to create workspace');
@@ -55,8 +59,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       const updatedWorkspace = await workspaceService.update(workspace);
-      setWorkspaces(prev => 
-        prev.map(w => w.id === workspace.id ? updatedWorkspace : w)
+      setWorkspaces((prev) =>
+        prev.map((w) => (w.id === workspace.id ? updatedWorkspace : w))
       );
       if (currentWorkspace?.id === workspace.id) {
         setCurrentWorkspace(updatedWorkspace);
@@ -73,7 +77,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       await workspaceService.delete(id);
-      setWorkspaces(prev => prev.filter(w => w.id !== id));
+      setWorkspaces((prev) => prev.filter((w) => w.id !== id));
       if (currentWorkspace?.id === id) {
         setCurrentWorkspace(null);
       }
