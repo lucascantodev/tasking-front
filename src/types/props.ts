@@ -1,5 +1,5 @@
 import { LinkProps } from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, ButtonHTMLAttributes } from 'react';
 
 interface DefaultProps {
   readonly className?: string;
@@ -9,5 +9,8 @@ interface DefaultProps {
 
 export type RouteProps = LinkProps &
   DefaultProps & { readonly target?: string };
+
+export type ButtonProps = DefaultProps &
+  ButtonHTMLAttributes<HTMLButtonElement>;
 
 export default DefaultProps;
