@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+export type Priority = 'high' | 'medium' | 'low';
+export type Status = 'not-started' | 'in-progress' | 'completed' | 'waiting';
+
 export type Workspace = z.infer<typeof workspace>;
 
 const workspace = z.object({
