@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import * as WorkspaceCard from '@/components/cards/workspaceCard';
+import CreateNewSection from '@/components/layout/sections/main/createNewSection';
 import {
   IconPlus,
   IconEye,
@@ -38,17 +39,21 @@ export default function Workspaces() {
   }
 
   return (
-    <div className='container mx-auto p-4'>
-      <h1 className='text-2xl font-bold mb-6'>My Workspaces</h1>
-
-      <Link
-        href='/workspaces/new'
-        className='inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md mb-6'
-      >
-        <IconPlus size={18} className='mr-2' />
-        Create New Workspace
-      </Link>
-
+    <div
+      className='
+        container min-w-full w-full m-0 border-0 p-0
+      '
+    >
+      <CreateNewSection
+        href='/'
+        labelText='Create a new Workspace!'
+        buttonText={[
+          <span key={1} className='font-[700] text-[1rem]'>
+            Add a Workspace
+          </span>,
+          <IconPlus key={2} className='size-[1.5rem]' />,
+        ]}
+      />
       {workspaces.length === 0 ? (
         <div className='bg-gray-100 p-8 rounded-lg text-center'>
           <p className='text-gray-600'>
@@ -56,9 +61,14 @@ export default function Workspaces() {
           </p>
         </div>
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div
+          className='
+            dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-full w-full bg-background border-y-1 
+            border-foreground p-4
+          '
+        >
           {workspaces.map((workspace) => (
-            <WorkspaceCard.Root key={workspace.id}>
+            <WorkspaceCard.Root className='' key={workspace.id}>
               <WorkspaceCard.CardInfos>
                 <WorkspaceCard.Title title={workspace.name} />
                 <WorkspaceCard.Description text={workspace.description} />
