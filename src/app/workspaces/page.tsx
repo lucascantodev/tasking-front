@@ -1,7 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { IconPlus, IconEdit, IconTrash, IconLoader } from '@tabler/icons-react';
+
+import * as WorkspaceCard from '@/components/cards/workspaceCard';
+import {
+  IconPlus,
+  IconEye,
+  IconEdit,
+  IconTrash,
+  IconLoader,
+} from '@tabler/icons-react';
 import { useWorkspaces } from '@/contexts/workspaces-context';
 
 export default function Workspaces() {
@@ -10,34 +18,6 @@ export default function Workspaces() {
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this workspace?')) {
       deleteWorkspace(id);
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-200 text-red-800';
-      case 'medium':
-        return 'bg-yellow-200 text-yellow-800';
-      case 'low':
-        return 'bg-green-200 text-green-800';
-      default:
-        return 'bg-gray-200 text-gray-800';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-200 text-green-800';
-      case 'in-progress':
-        return 'bg-blue-200 text-blue-800';
-      case 'waiting':
-        return 'bg-yellow-200 text-yellow-800';
-      case 'not-started':
-        return 'bg-gray-200 text-gray-800';
-      default:
-        return 'bg-gray-200 text-gray-800';
     }
   };
 
@@ -78,51 +58,45 @@ export default function Workspaces() {
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {workspaces.map((workspace) => (
-            <div
-              key={workspace.id}
-              className='border rounded-lg overflow-hidden shadow-sm'
-            >
-              <div className='p-4'>
-                <h2 className='text-xl font-semibold'>{workspace.name}</h2>
-                <p className='text-gray-600 mt-2'>{workspace.description}</p>
+            <WorkspaceCard.Root key={workspace.id}>
+              <WorkspaceCard.CardInfos>
+                <WorkspaceCard.Title title={workspace.name} />
+                <WorkspaceCard.Description text={workspace.description} />
 
-                <div className='flex mt-4 space-x-2'>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(workspace.priority)}`}
-                  >
-                    {workspace.priority}
-                  </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${getStatusColor(workspace.status)}`}
-                  >
-                    {workspace.status}
-                  </span>
-                </div>
+                <WorkspaceCard.BadgesContainer>
+                  <WorkspaceCard.PriorityBadge priority={workspace.priority} />
+                  <WorkspaceCard.StatusBadge status={workspace.status} />
+                </WorkspaceCard.BadgesContainer>
+              </WorkspaceCard.CardInfos>
 
-                <div className='flex justify-between mt-4'>
-                  <Link
-                    href={`/workspaces/${workspace.id}`}
-                    className='text-blue-600 hover:underline'
-                  >
-                    View Tasks
-                  </Link>
-                  <div className='flex space-x-2'>
-                    <Link
-                      href={`/workspaces/${workspace.id}/edit`}
-                      className='text-gray-600 hover:text-gray-900'
-                    >
-                      <IconEdit size={18} />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(workspace.id)}
-                      className='text-red-600 hover:text-red-900'
-                    >
-                      <IconTrash size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <WorkspaceCard.ButtonsContainer>
+                <WorkspaceCard.Button title='add task' onClick={() => {}}>
+                  <IconPlus color='#FAFAFA' size={18} />
+                </WorkspaceCard.Button>
+                <WorkspaceCard.Button
+                  title='view tasks'
+                  onClick={() =>
+                    window.open(`/workspaces/${workspace.id}`, '_self')
+                  }
+                >
+                  <IconEye color='#FAFAFA' size={18} />
+                </WorkspaceCard.Button>
+                <WorkspaceCard.Button
+                  title='edit workspace'
+                  onClick={() =>
+                    window.open(`/workspaces/${workspace.id}/edit`, '_self')
+                  }
+                >
+                  <IconEdit color='#FAFAFA' size={18} />
+                </WorkspaceCard.Button>
+                <WorkspaceCard.Button
+                  title='delete workspace'
+                  onClick={() => handleDelete(workspace.id)}
+                >
+                  <IconTrash color='#FAFAFA' size={18} />
+                </WorkspaceCard.Button>
+              </WorkspaceCard.ButtonsContainer>
+            </WorkspaceCard.Root>
           ))}
         </div>
       )}
