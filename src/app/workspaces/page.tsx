@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-
 import * as WorkspaceCard from '@/components/cards/workspaceCard';
 import CreateNewSection from '@/components/layout/sections/main/createNewSection';
 import {
@@ -48,10 +46,10 @@ export default function Workspaces() {
         href='/'
         labelText='Create a new Workspace!'
         buttonText={[
-          <span key={1} className='font-[700] text-[1rem]'>
+          <span key={1} className='font-[700] text-[1em]'>
             Add a Workspace
           </span>,
-          <IconPlus key={2} className='size-[1.5rem]' />,
+          <IconPlus key={2} className='size-[1.75em]' />,
         ]}
       />
       {workspaces.length === 0 ? (
