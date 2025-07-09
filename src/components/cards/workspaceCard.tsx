@@ -11,16 +11,16 @@ import {
 import { cn } from '@/lib/utils';
 import DefaultProps, { ButtonProps } from '@/types/props';
 import { Priority, Status } from '@/schemas/Workspace';
-import { Badge } from '@/components/ui/badge';
-import { Button as ShadButton } from '@/components/ui/button';
+import { Badge as ShadBadge } from '@/components/ui/badge';
 
 export function Root({ className, children, ...props }: DefaultProps) {
   return (
     <div
       className={cn(
         `
-            dark min-w-2xs bg-background border-[1px] rounded-[5px] border-foreground px-[1.1875rem] py-[1.6875rem]
-            flex flex-col justify-between gap-12
+            dark min-w-2xs 2xl:min-h-[18rem] 4xl:min-h-[24rem] 5xl:min-h-[30rem] 
+            bg-background border-[1px] 4xl:border-[2px] rounded-[5px] border-foreground 
+            px-[1.1875rem] py-[1.6875rem] 2xl:px-[1.5rem] 2xl:py-[2rem] flex flex-col justify-between gap-12
         `,
         className
       )}
@@ -34,7 +34,10 @@ export function Root({ className, children, ...props }: DefaultProps) {
 export function CardInfos({ className, children, ...props }: DefaultProps) {
   return (
     <div
-      className={cn('dark flex flex-col gap-6 items-start', className)}
+      className={cn(
+        'dark flex flex-col gap-5 2xl:gap-5.5 4xl:gap-6 5xl:gap-7 items-start',
+        className
+      )}
       {...props}
     >
       {children}
@@ -49,7 +52,10 @@ export function Title({
 }: Omit<DefaultProps, 'children'> & { title: string }) {
   return (
     <h3
-      className={cn('dark text-foreground text-2xl font-normal', className)}
+      className={cn(
+        'dark text-foreground text-2xl 2xl:text-3xl 4xl:text-5xl 5xl:text-6xl font-normal',
+        className
+      )}
       {...props}
     >
       {title}
@@ -63,7 +69,12 @@ export function Description({
   ...props
 }: Omit<DefaultProps, 'children'> & { text: string }) {
   return (
-    <p className={cn('dark text-foreground text-md font-normal')} {...props}>
+    <p
+      className={cn(
+        'dark text-foreground text-sm xl:text-lg 2xl:text-xl 4xl:text-2xl 5xl:text-3xl font-normal'
+      )}
+      {...props}
+    >
       {text}
     </p>
   );
@@ -75,9 +86,31 @@ export function BadgesContainer({
   ...props
 }: DefaultProps) {
   return (
-    <div className={cn('flex gap-2.5', className)} {...props}>
+    <div
+      className={cn('flex gap-2.5 2xl:gap-3 4xl:gap-4', className)}
+      {...props}
+    >
       {children}
     </div>
+  );
+}
+
+export function Badge({ children, className, ...props }: DefaultProps) {
+  return (
+    <ShadBadge
+      className={cn(
+        `
+          dark bg-background border 4xl:border-[2px] border-foreground p-1 xl:p-2 4xl:p-3 flex 
+          gap-0.5 xl:gap-1 2xl:gap-2 rounded-[0px] 
+          text-foreground text-[0.875rem] xl:text-[1.125rem] 2xl:text-[1.25rem] 
+          4xl:text-[1.75rem] 5xl:text-[2rem] font-normal
+        `,
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </ShadBadge>
   );
 }
 
@@ -91,12 +124,11 @@ export function PriorityBadge({
 
   const getPriorityIcon = (priority: Priority) => {
     const icons = {
-      low: <IconZzz color='#FAFAFA' size={28} />,
-      medium: <IconTilde color='#FAFAFA' size={28} />,
+      low: <IconZzz color='#FAFAFA' />,
+      medium: <IconTilde color='#FAFAFA' />,
       high: (
         <IconAlertTriangleFilled
           color='#FAFAFA'
-          size={28}
           strokeLinecap='square'
           strokeLinejoin='bevel'
         />
@@ -109,13 +141,22 @@ export function PriorityBadge({
   return (
     <Badge
       className={cn(
-        'dark bg-background border border-foreground p-1 flex gap-0.5 rounded-[0px]',
+        `
+          dark bg-background border 4xl:border-[2px] border-foreground p-1 xl:p-2 4xl:p-3 flex 
+          gap-0.5 xl:gap-1 2xl:gap-2 rounded-[0px] 
+          text-foreground text-[0.875rem] xl:text-[1.125rem] 2xl:text-[1.25rem] 
+          4xl:text-[1.75rem] 5xl:text-[2rem] font-normal
+        `,
         className
       )}
       {...props}
     >
       {getPriorityIcon(priority)}
-      <span className='dark text-foreground text-[0.875rem] font-normal'>
+      <span
+        className='
+          dark 
+        '
+      >
         {capitalizedPriority}
       </span>
     </Badge>
@@ -135,10 +176,10 @@ export function StatusBadge({
 
   const getStatusIcon = (status: Status) => {
     const icons = {
-      'not-started': <IconCalendarFilled color='#FAFAFA' size={20} />,
-      'in-progress': <IconBoltFilled color='#FAFAFA' size={20} />,
-      completed: <IconCheckbox color='#FAFAFA' size={20} />,
-      waiting: <IconClockHour2Filled color='#FAFAFA' size={20} />,
+      'not-started': <IconCalendarFilled color='#FAFAFA' />,
+      'in-progress': <IconBoltFilled color='#FAFAFA' />,
+      completed: <IconCheckbox color='#FAFAFA' />,
+      waiting: <IconClockHour2Filled color='#FAFAFA' />,
     };
 
     return icons[status];
@@ -147,13 +188,22 @@ export function StatusBadge({
   return (
     <Badge
       className={cn(
-        'dark bg-background border border-foreground p-1 flex gap-0.5 rounded-[0px]',
+        `
+          dark bg-background border 4xl:border-[2px] border-foreground p-1 xl:p-2 4xl:p-3 flex 
+          gap-0.5 xl:gap-1 2xl:gap-2 rounded-[0px] 
+          text-foreground text-[0.875rem] xl:text-[1.125rem] 2xl:text-[1.25rem] 
+          4xl:text-[1.75rem] 5xl:text-[2rem] font-normal
+        `,
         className
       )}
       {...props}
     >
       {getStatusIcon(status)}
-      <span className='dark text-foreground text-[0.875rem] font-normal'>
+      <span
+        className='
+          dark
+        '
+      >
         {formattedStatus}
       </span>
     </Badge>
@@ -166,7 +216,13 @@ export function ButtonsContainer({
   ...props
 }: DefaultProps) {
   return (
-    <div className={cn('flex justify-end gap-2', className)} {...props}>
+    <div
+      className={cn(
+        'flex justify-end gap-2 lg:gap-3 xl:gap-4 2xl:gap-5',
+        className
+      )}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -183,15 +239,18 @@ export function Button({
    */
 
   return (
-    <ShadButton
+    <button
       onClick={onClick}
       className={cn(
-        'dark flex gap-0.5 border border-foreground bg-background hover:bg-secondary hover:cursor-pointer px-1 py-0.5 rounded-[0px]',
+        `dark flex gap-0.5 2xl:gap-1 4xl:gap-2 border 4xl:border-[2px] border-foreground bg-background 
+        hover:bg-secondary hover:cursor-pointer 
+        px-1 xl:px-2 2xl:px-3 4xl:px-4 5xl:px-5 py-0.5 xl:py-1 2xl:py-2 4xl:py-3 5xl:py-4 rounded-[0px] 
+        text-xl xl:text-2xl 2xl:text-3xl 4xl:text-4xl 5xl:text-5xl`,
         className
       )}
       {...props}
     >
       {children}
-    </ShadButton>
+    </button>
   );
 }

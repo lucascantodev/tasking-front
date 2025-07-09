@@ -8,7 +8,16 @@ import {
   IconEdit,
   IconTrash,
   IconLoader,
+  IconZzz,
+  IconTilde,
+  IconAlertTriangleFilled,
+  IconCalendarFilled,
+  IconBoltFilled,
+  IconCheckbox,
+  IconClockHour2Filled,
 } from '@tabler/icons-react';
+
+import { Priority, Status } from '@/schemas/Workspace';
 import { useWorkspaces } from '@/contexts/workspaces-context';
 
 export default function Workspaces() {
@@ -18,6 +27,45 @@ export default function Workspaces() {
     if (confirm('Are you sure you want to delete this workspace?')) {
       deleteWorkspace(id);
     }
+  };
+
+  const getPriorityTitle = (priority: Priority) => {
+    return priority.charAt(0).toUpperCase() + priority.slice(1);
+  };
+
+  const getPriorityIcon = (priority: Priority) => {
+    const icons = {
+      low: <IconZzz color='#FAFAFA' className='size-[1.5em]' />,
+      medium: <IconTilde color='#FAFAFA' className='size-[1.5em]' />,
+      high: (
+        <IconAlertTriangleFilled
+          color='#FAFAFA'
+          className='size-[1.5em]'
+          strokeLinecap='square'
+          strokeLinejoin='bevel'
+        />
+      ),
+    };
+
+    return icons[priority];
+  };
+
+  const getStatusTitle = (status: Status) => {
+    return status
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const getStatusIcon = (status: Status) => {
+    const icons = {
+      'not-started': <IconCalendarFilled color='#FAFAFA' />,
+      'in-progress': <IconBoltFilled color='#FAFAFA' />,
+      completed: <IconCheckbox color='#FAFAFA' />,
+      waiting: <IconClockHour2Filled color='#FAFAFA' />,
+    };
+
+    return icons[status];
   };
 
   if (isLoading) {
@@ -61,8 +109,8 @@ export default function Workspaces() {
       ) : (
         <div
           className='
-            dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-full w-full bg-background border-y-1 
-            border-foreground p-4
+            dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-5 4xl:gap-6 min-w-full w-full bg-background border-y-1 
+            border-foreground p-4 2xl:p-5 4xl:p-6
           '
         >
           {workspaces.map((workspace) => (
@@ -72,14 +120,20 @@ export default function Workspaces() {
                 <WorkspaceCard.Description text={workspace.description} />
 
                 <WorkspaceCard.BadgesContainer>
-                  <WorkspaceCard.PriorityBadge priority={workspace.priority} />
-                  <WorkspaceCard.StatusBadge status={workspace.status} />
+                  <WorkspaceCard.Badge>
+                    {getPriorityIcon(workspace.priority)}
+                    <span>{getPriorityTitle(workspace.priority)}</span>
+                  </WorkspaceCard.Badge>
+                  <WorkspaceCard.Badge>
+                    {getStatusIcon(workspace.status)}
+                    <span>{getStatusTitle(workspace.status)}</span>
+                  </WorkspaceCard.Badge>
                 </WorkspaceCard.BadgesContainer>
               </WorkspaceCard.CardInfos>
 
               <WorkspaceCard.ButtonsContainer>
                 <WorkspaceCard.Button title='add task' onClick={() => {}}>
-                  <IconPlus color='#FAFAFA' size={18} />
+                  <IconPlus color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
                   title='view tasks'
@@ -87,7 +141,7 @@ export default function Workspaces() {
                     window.open(`/workspaces/${workspace.id}`, '_self')
                   }
                 >
-                  <IconEye color='#FAFAFA' size={18} />
+                  <IconEye color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
                   title='edit workspace'
@@ -95,13 +149,13 @@ export default function Workspaces() {
                     window.open(`/workspaces/${workspace.id}/edit`, '_self')
                   }
                 >
-                  <IconEdit color='#FAFAFA' size={18} />
+                  <IconEdit color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
                   title='delete workspace'
                   onClick={() => handleDelete(workspace.id)}
                 >
-                  <IconTrash color='#FAFAFA' size={18} />
+                  <IconTrash color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
               </WorkspaceCard.ButtonsContainer>
             </WorkspaceCard.Root>

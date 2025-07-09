@@ -88,5 +88,97 @@ export function useWorkspaces() {
   if (context === undefined) {
     throw new Error('useWorkspaces must be used within a WorkspacesProvider');
   }
+
+  // TODO: Remover esse default quando terminar de estilizar os cards do workspace
+  return {
+    workspaces: [
+      {
+        id: 1,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 2,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 3,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 4,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 5,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 6,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 7,
+        userId: 1,
+        name: 'workspace',
+        description:
+          'This workspace helps me organize all my home-related tasks in one place. I use it to keep track of chores, grocery shopping, maintenance, and other things I need to do around the house. It makes it easy to see what’s pending, set priorities, and make sure nothing gets forgotten in my daily routine.',
+        priority: 'low',
+        status: 'waiting',
+      },
+      {
+        id: 8,
+        userId: 1,
+        name: 'workspace',
+        description: 'none.',
+        priority: 'low',
+        status: 'waiting',
+      },
+    ],
+    isLoading: false,
+    error: null,
+    addWorkspace: (workspace: Workspace) => {
+      return;
+    },
+    updateWorkspace: (id: number, workspace: Partial<Workspace>) => {
+      return;
+    },
+    deleteWorkspace: (id: number) => {
+      return;
+    },
+    refreshWorkspaces: () => {
+      return Promise;
+    },
+  };
+
   return context;
 }
