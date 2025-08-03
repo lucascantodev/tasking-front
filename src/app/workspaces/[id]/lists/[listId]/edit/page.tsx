@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useList } from '@/contexts/list-context';
-import { List } from '@/schemas/List';
+import { List } from '@/schemas/list';
 
 export default function EditList({
   params,

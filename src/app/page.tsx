@@ -7,11 +7,13 @@ import { FaGoogle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Login_Type } from '@/dto/login';
+import signInSchema, { SignISchema_Type } from '@/schemas/signIn';
 
 export default function Login() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [error, setError] = useState('');
 
   const {
@@ -19,15 +21,16 @@ export default function Login() {
     register,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<Login_Type>({
+  } = useForm<SignISchema_Type>({
     defaultValues: {
-      email: 'john@example.com',
+      email: 'johndoe@gmail.com',
       password: '123456',
-      rememberMe: false,
     },
+    resolver: zodResolver(signInSchema),
+    mode: 'onChange', // Validates on change for better UX
   });
 
-  const onSubmit = async (data: Login_Type): Promise<void> => {
+  const onSubmit = async (data: SignISchema_Type): Promise<void> => {
     setError('');
 
     try {
@@ -36,11 +39,11 @@ export default function Login() {
         password: data.password,
       });
 
-      console.log('✅Login successful!');
+      console.log('✅ Login successful!');
       console.log('⏩Redirecting to workspaces...');
       router.push('/workspaces');
     } catch (error) {
-      console.error('❌Login failed!', error);
+      console.error('🚩Login failed!', error);
       setError(
         error instanceof Error
           ? error.message
@@ -77,13 +80,27 @@ export default function Login() {
             <input
               id='email'
               type='email'
-              required
               {...register('email')}
               autoComplete='email'
-              className='appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
+              className={`
+                appearance-none relative block w-full px-3 py-2 bg-white border 
+                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
+                ${
+                  errors.email
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300'
+                }
+              `}
               placeholder='Email address'
             />
+            {errors.email && (
+              <p className='text-red-400 text-sm mt-1'>
+                {errors.email.message}
+              </p>
+            )}
           </div>
+
           <div className='space-y-2'>
             <div className='flex items-center justify-between'>
               <label htmlFor='password' className='block text-sm font-medium'>
@@ -96,27 +113,25 @@ export default function Login() {
             <input
               id='password'
               type='password'
-              required
               {...register('password')}
               autoComplete='current-password'
-              className='appearance-none relative block w-full px-3 py-2 bg-white border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
+              className={`
+                appearance-none relative block w-full px-3 py-2 bg-white border 
+                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
+                ${
+                  errors.password
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300'
+                }
+              `}
               placeholder='Password'
             />
-          </div>
-
-          <div className='flex items-center'>
-            <input
-              id='remember-me'
-              type='checkbox'
-              {...register('rememberMe')}
-              className='h-4 w-4 rounded bg-zinc-700 border-zinc-600 text-blue-500 focus:ring-blue-500'
-            />
-            <label
-              htmlFor='remember-me'
-              className='ml-2 block text-sm text-zinc-400'
-            >
-              Remember me
-            </label>
+            {errors.password && (
+              <p className='text-red-400 text-sm mt-1'>
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           <div>

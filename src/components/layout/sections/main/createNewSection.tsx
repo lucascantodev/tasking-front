@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
-import DefaultProps, { RouteProps } from '@/types/props';
+import DefaultProps, { RouteProps } from '@/dto/props';
 
 export function Root({ className, children, ...props }: DefaultProps) {
   return (
@@ -27,7 +27,7 @@ export function Container({ className, children, ...props }: DefaultProps) {
   return (
     <div
       className={cn(
-        'flex gap-[1.25rem] 2xl:gap-[1.5rem] 4xl:gap-[2rem] items-center'
+        'flex gap-[1.25rem] 2xl:gap-[1.5rem] 4xl:gap-[1rem] items-center'
       )}
       {...props}
     >
@@ -73,16 +73,26 @@ export default function ({
   href,
   labelText,
   buttonText,
+  className,
+  containerClassName,
+  labelClassName,
+  buttonClassName,
 }: Readonly<{
   href: string;
   labelText: ReactNode | ReactNode[];
   buttonText: ReactNode | ReactNode[];
+  className?: string;
+  containerClassName?: string;
+  labelClassName?: string;
+  buttonClassName?: string;
 }>) {
   return (
-    <Root>
-      <Container>
-        <Label>{labelText}</Label>
-        <Button href={href}>{buttonText}</Button>
+    <Root className={className}>
+      <Container className={containerClassName}>
+        <Label className={labelClassName}>{labelText}</Label>
+        <Button href={href} className={buttonClassName}>
+          {buttonText}
+        </Button>
       </Container>
     </Root>
   );

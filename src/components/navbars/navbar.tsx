@@ -4,21 +4,21 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
-import DefaultProps, { RouteProps } from '@/types/props';
+import DefaultProps, { RouteProps } from '@/dto/props';
 
 export function Root({ className, children, ...props }: DefaultProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <>
-      {/* Desktop Nav: visible from sm and up */}
+      {/* desktop nav: visible from sm and up */}
       <nav className={cn('hidden sm:flex', className)} {...props}>
         {children}
       </nav>
 
-      {/* Mobile Burger Menu: visible below sm */}
+      {/* mobile burger menu: visible below sm */}
       <div className='flex sm:hidden items-center'>
-        {/* Burger Button */}
+        {/* burger button */}
         <button
           aria-label='Open menu'
           className='dark bg-background border border-foreground rounded p-2 flex flex-col justify-center items-center gap-1'
@@ -29,7 +29,7 @@ export function Root({ className, children, ...props }: DefaultProps) {
           <span className='block w-6 h-0.5 bg-foreground rounded' />
         </button>
 
-        {/* Side Menu */}
+        {/* side menu */}
         <div
           className={cn(
             `fixed top-0 right-0 h-full w-[75%] z-50 dark bg-background border-l border-foreground py-5 px-7
@@ -39,7 +39,7 @@ export function Root({ className, children, ...props }: DefaultProps) {
               : 'translate-x-full pointer-events-none opacity-0'
           )}
         >
-          {/* Close Button */}
+          {/* close button */}
           <div className='w-full flex justify-end px-4 pt-4'>
             <button
               aria-label='Close menu'
@@ -49,19 +49,27 @@ export function Root({ className, children, ...props }: DefaultProps) {
               ✕
             </button>
           </div>
-          {/* Links */}
+          {/* links */}
           <div className='flex flex-col items-center gap-6 mt-8 w-full'>
-            {/* Adjusting children styles */}
-            {React.Children.map(children, (child) =>
-              React.isValidElement(child)
-                ? React.cloneElement(child as React.ReactElement, {
-                    className: cn(
-                      'dark text-foreground w-full justify-center items-center border-0 hover:bg-secondary',
-                      (child.props as any).className
-                    ),
-                  })
-                : child
-            )}
+            {/* adjusting children styles */}
+            {React.Children.map(children, (child) => {
+              if (React.isValidElement(child)) {
+                // more specific type assertion
+                const childElement = child as React.ReactElement<{
+                  className?: string;
+                  [key: string]: any;
+                }>;
+
+                return React.cloneElement(childElement, {
+                  ...childElement.props,
+                  className: cn(
+                    'dark text-foreground w-full justify-center items-center border-0 hover:bg-secondary',
+                    childElement.props.className
+                  ),
+                });
+              }
+              return child;
+            })}
           </div>
         </div>
       </div>

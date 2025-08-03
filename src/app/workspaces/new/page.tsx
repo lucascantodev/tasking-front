@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useWorkspaces } from '@/contexts/workspaces-context';
-import { Workspace } from '@/schemas/Workspace';
+import { Workspace } from '@/schemas/workspace';
 import { useAuth } from '@/contexts/auth-context';
 import workspaceService from '@/services/workspace.service';
 

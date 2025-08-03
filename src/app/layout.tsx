@@ -2,10 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '@styles/globals.css';
 import Footer from '@/components/layout/sections/footer/footer';
-import Head from 'next/head';
 import { AuthProvider } from '@/contexts/auth-context';
 import { AuthErrorProvider } from '@/contexts/authError-context';
-import { WorkspacesProvider } from '@/contexts/workspaces-context';
 import { ListProvider } from '@/contexts/list-context';
 import { TasksProvider } from '@/contexts/tasks-context';
 
@@ -34,16 +32,16 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a]`}
       >
         <AuthProvider>
-          <TasksProvider>
-            <AuthErrorProvider>
-              <WorkspacesProvider>
-                <ListProvider>{children}</ListProvider>
-              </WorkspacesProvider>
-            </AuthErrorProvider>
-          </TasksProvider>
+          <AuthErrorProvider>
+            <ListProvider>
+              <TasksProvider>
+                {children}
+              </TasksProvider>
+            </ListProvider>
+          </AuthErrorProvider>
         </AuthProvider>
         <Footer />
       </body>

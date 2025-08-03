@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import listService from '@/services/list.service';
-import { List } from '@/schemas/List';
+import { List } from '@/schemas/list';
 
 export default function NewList({ params }: { params: { id: string } }) {
   const router = useRouter();

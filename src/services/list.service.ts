@@ -1,13 +1,10 @@
-import { BaseService } from './base.service';
-import list, { List } from '@/schemas/List';
+import axiosApi from '@/api/axiosApi';
+import { List } from '@/dto/list';
 
-export class ListService extends BaseService<List> {
+export class ListService {
   private static instance: ListService;
-  protected resource = 'lists';
 
-  private constructor() {
-    super();
-  }
+  private constructor() {}
 
   public static getInstance(): ListService {
     if (!ListService.instance) {
@@ -16,73 +13,125 @@ export class ListService extends BaseService<List> {
     return ListService.instance;
   }
 
-  public async getAll(isAuthenticated: boolean): Promise<List[]> {
-    if (!isAuthenticated) return [];
-    return super.getAll();
-  }
-
-  public async getById(
-    id: number,
-    isAuthenticated: boolean
-  ): Promise<List | undefined> {
-    if (!isAuthenticated) return undefined;
-    return super.getById(id);
-  }
-
-  public async getByWorkspaceId(
-    workspaceId: number,
-    isAuthenticated: boolean
-  ): Promise<List[]> {
-    if (!isAuthenticated) return [];
-
-    const response = await fetch(
-      `${this.API_URL}/${this.resource}?workspaceId=${workspaceId}`
-    );
-    if (!response.ok) {
-      throw new Error(`Failed to fetch lists for workspace ${workspaceId}`);
-    }
-    return response.json();
-  }
-
-  public async create(
-    newList: Omit<List, 'id'>,
-    isAuthenticated: boolean
-  ): Promise<List> {
-    if (!isAuthenticated) {
-      throw new Error('User must be authenticated to create a list');
-    }
-
+  // get all user lists
+  public async getAll(): Promise<List[]> {
     try {
-      // Validate the list
-      list.parse({ ...newList, id: 1 }); // temporary id for validation
-      return super.create(newList);
+      const response = await axiosApi.get<List[]>('/lists');
+      return response.data;
     } catch (error) {
-      throw error;
+      console.error('🚩 Error fetching all lists:', error);
+      throw new Error('🚩 Failed to fetch lists');
     }
   }
 
+  // get list by id
+  public async getById(id: number): Promise<List | null> {
+    try {
+      const response = await axiosApi.get<List>(`/lists/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        return null;
+      }
+      console.error(`🚩 Error fetching list ${id}:`, error);
+      throw new Error('🚩 Failed to fetch list');
+    }
+  }
+
+  // create new list
+  public async create(newList: { name: string }): Promise<List> {
+    try {
+      // validate data before sending
+      this.validateList(newList);
+
+      const response = await axiosApi.post<List>('/lists', newList);
+      return response.data;
+    } catch (error: any) {
+      console.error('🚩 Error creating list:', error);
+
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data.error || '🚧 Invalid list data');
+      }
+
+      throw new Error('🚩 Failed to create list');
+    }
+  }
+
+  // update list
   public async update(
-    updatedList: List,
-    isAuthenticated: boolean
+    id: number,
+    updatedList: { name?: string }
   ): Promise<List> {
-    if (!isAuthenticated) {
-      throw new Error('User must be authenticated to update a list');
-    }
-
     try {
-      // Validate the list
-      list.parse(updatedList);
-      return super.update(updatedList);
-    } catch (error) {
-      throw error;
+      // validate data if provided
+      if (updatedList.name !== undefined) {
+        this.validateList(updatedList);
+      }
+
+      const response = await axiosApi.put<List>(`/lists/${id}`, updatedList);
+      return response.data;
+    } catch (error: any) {
+      console.error(`🚩 Error updating list ${id}:`, error);
+
+      if (error.response?.status === 404) {
+        throw new Error('🚩 List not found');
+      }
+
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data.error || '🚧 Invalid list data');
+      }
+
+      throw new Error('🚩 Failed to update list');
     }
   }
 
-  public async delete(id: number, isAuthenticated: boolean): Promise<void> {
-    if (!isAuthenticated) {
-      throw new Error('User must be authenticated to delete a list');
+  // delete list
+  public async delete(id: number): Promise<void> {
+    try {
+      await axiosApi.delete(`/lists/${id}`);
+    } catch (error: any) {
+      console.error(`Error deleting list ${id}:`, error);
+
+      if (error.response?.status === 404) {
+        throw new Error('🚩 List not found');
+      }
+
+      throw new Error('🚩 Failed to delete list');
     }
-    return super.delete(id);
+  }
+
+  // duplicate list
+  public async duplicate(id: number, newName?: string): Promise<List> {
+    try {
+      const originalList = await this.getById(id);
+
+      if (!originalList) {
+        throw new Error('🚩 List not found');
+      }
+
+      const duplicatedList = {
+        name: newName || `${originalList.name} (Copy)`,
+      };
+
+      return await this.create(duplicatedList);
+    } catch (error) {
+      console.error(`🚩 Error duplicating list ${id}:`, error);
+      throw new Error('🚩 Failed to duplicate list');
+    }
+  }
+
+  // validate list data
+  private validateList(listData: { name?: string }): void {
+    if (
+      listData.name !== undefined &&
+      (!listData.name || listData.name.trim().length === 0)
+    ) {
+      throw new Error('🚧 List name is required');
+    }
+
+    if (listData.name && listData.name.trim().length > 100) {
+      throw new Error('🚧 List name must be less than 100 characters');
+    }
   }
 }
 

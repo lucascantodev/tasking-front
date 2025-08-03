@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-export type Task = z.infer<typeof task>;
+export type TaskSchema_Type = z.infer<typeof taskSchema>;
 
-const task = z.object({
-  // ID
+const taskSchema = z.object({
   id: z.coerce
     .number({
       required_error: 'Id in Task is required.',
@@ -12,7 +11,6 @@ const task = z.object({
     })
     .positive({ message: "Id in Task should be greater than 0 '> 0'." })
     .int({ message: 'Id in Task should be an integer number.' }),
-  // LISTID
   listId: z.coerce
     .number({
       required_error: 'ListId in Task is required.',
@@ -21,7 +19,6 @@ const task = z.object({
     })
     .positive({ message: "ListId in Task should be greater than 0 '> 0'." })
     .int({ message: 'ListId in Task should be an integer number.' }),
-  // NAME
   name: z
     .string({
       required_error: 'Name in Task is required.',
@@ -29,6 +26,9 @@ const task = z.object({
     })
     .trim()
     .nonempty({ message: "Name in Task can't be empty." }),
+  isComplete: z.boolean().default(false),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });
 
-export default task;
+export default taskSchema;

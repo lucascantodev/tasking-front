@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { useTasks } from '@/contexts/tasks-context';
 import listService from '@/services/list.service';
 import taskService from '@/services/task.service';
-import { Task } from '@/schemas/Task';
-import { List } from '@/schemas/List';
+import { Task } from '@/schemas/task';
+import { List } from '@/schemas/list';
 
 export default function NewTask({ params }: { params: { id: string } }) {
   const router = useRouter();

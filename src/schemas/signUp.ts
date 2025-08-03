@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-export type SignUpFormValues = z.infer<typeof signUpSchema>;
+export type SignUpSchema_Type = z.infer<typeof signUpSchema>;
 
 const signUpSchema = z
   .object({

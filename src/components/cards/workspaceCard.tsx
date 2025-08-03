@@ -9,8 +9,8 @@ import {
 } from '@tabler/icons-react';
 
 import { cn } from '@/lib/utils';
-import DefaultProps, { ButtonProps } from '@/types/props';
-import { Priority, Status } from '@/schemas/Workspace';
+import DefaultProps, { ButtonProps } from '@/dto/props';
+import { Priority, Status } from '@/schemas/workspace';
 import { Badge as ShadBadge } from '@/components/ui/badge';
 
 export function Root({ className, children, ...props }: DefaultProps) {

@@ -1,9 +1,25 @@
-import { IconLayoutDashboard } from '@tabler/icons-react';
+'use client';
+
+import { IconLayoutDashboard, IconLogout } from '@tabler/icons-react';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'next/navigation';
 
 import Logo from '@/components/tasking/logo';
 import * as NavBar from '@/components/navbars/navbar';
 
 export default function Header() {
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <header
       className='
@@ -13,13 +29,23 @@ export default function Header() {
         border-b-[1px] 2xl:border-b-[3px] bg-background text-foreground
       '
     >
-      <Logo />
-      <NavBar.Root>
-        <NavBar.Route href='/workspaces'>
-          <IconLayoutDashboard stroke={1.5} className='size-[1.2em]' />
-          Workspace
-        </NavBar.Route>
-      </NavBar.Root>
+      <Logo href='/workspaces' />
+      <div className='flex items-center gap-4'>
+        <button
+          onClick={handleLogout}
+          className='
+            flex items-center gap-2 px-3 py-2 rounded-md
+            hover:bg-red-600/10 text-red-400 hover:text-red-300
+            transition-colors duration-200
+            border border-red-400/20 hover:border-red-400/40
+            cursor-pointer
+          '
+          title='Logout'
+        >
+          <IconLogout stroke={1.5} className='size-[1.2em]' />
+          <span className='hidden sm:inline'>Logout</span>
+        </button>
+      </div>
     </header>
   );
 }

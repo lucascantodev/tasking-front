@@ -2,6 +2,7 @@
 
 import * as WorkspaceCard from '@/components/cards/workspaceCard';
 import CreateNewSection from '@/components/layout/sections/main/createNewSection';
+import { useList } from '@/contexts/list-context';
 import {
   IconPlus,
   IconEye,
@@ -15,18 +16,23 @@ import {
   IconBoltFilled,
   IconCheckbox,
   IconClockHour2Filled,
+  IconExclamationCircle,
+  IconRefresh,
 } from '@tabler/icons-react';
-
-import { Priority, Status } from '@/schemas/Workspace';
-import { useWorkspaces } from '@/contexts/workspaces-context';
+import { ListPlus } from 'lucide-react';
+import { Priority, Status } from '@/dto/list';
 
 export default function Workspaces() {
-  const { workspaces, isLoading, error, deleteWorkspace } = useWorkspaces();
+  const { lists, isLoading, error, deleteList, refreshLists } = useList();
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this workspace?')) {
-      deleteWorkspace(id);
+    if (confirm('Are you sure you want to delete this list?')) {
+      deleteList(id);
     }
+  };
+
+  const handleRetry = () => {
+    refreshLists();
   };
 
   const getPriorityTitle = (priority: Priority) => {
@@ -68,18 +74,42 @@ export default function Workspaces() {
     return icons[status];
   };
 
+  // loading state
   if (isLoading) {
     return (
-      <div className='flex justify-center items-center h-64'>
-        <IconLoader className='animate-spin' size={32} />
+      <div className='flex flex-col justify-center items-center h-64 space-y-4'>
+        <IconLoader className='animate-spin text-blue-500' size={40} />
+        <p className='text-gray-600'>Loading your lists...</p>
       </div>
     );
   }
 
+  // error state
   if (error) {
     return (
-      <div className='flex justify-center items-center h-64'>
-        <p className='text-red-500'>{error}</p>
+      <div className='flex flex-col justify-center items-center h-64 space-y-6'>
+        <div className='flex flex-col items-center space-y-4'>
+          <IconExclamationCircle className='text-red-500' size={48} />
+          <div className='text-center'>
+            <h3 className='text-lg font-semibold text-red-600 mb-2'>
+              Failed to load lists
+            </h3>
+            <p className='text-gray-600 max-w-md'>
+              {error ||
+                'Something went wrong while loading your lists. Please try again.'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleRetry}
+          className='
+            flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg
+            hover:bg-blue-700 transition-colors duration-200
+          '
+        >
+          <IconRefresh size={16} />
+          Try Again
+        </button>
       </div>
     );
   }
@@ -87,47 +117,66 @@ export default function Workspaces() {
   return (
     <div
       className='
-        container min-w-full w-full m-0 border-0 p-0
-      '
+      container min-w-full w-full m-0 border-0 p-0 
+    '
     >
       <CreateNewSection
-        href='/'
-        labelText='Create a new Workspace!'
+        href='/lists/create'
+        labelText='Create a new List!'
+        className='mb-4'
+        buttonClassName='
+        flex items-center gap-2 p-1 rounded-xl
+        bg-gradient-to-r from-neutral-900 via-black to-neutral-800
+        text-white font-bold shadow-lg border border-neutral-700
+        transition-all duration-600
+        hover:scale-105 hover:bg-neutral-950 hover:shadow-xl
+        focus:outline-none focus:ring-2 focus:ring-neutral-600
+        animate-bounce hover:animate-none
+      '
         buttonText={[
-          <span key={1} className='font-[700] text-[1em]'>
-            Add a Workspace
-          </span>,
-          <IconPlus key={2} className='size-[1.75em]' />,
+          <ListPlus key={3} className='size-[1.50em] animate-pulse' />,
         ]}
       />
-      {workspaces.length === 0 ? (
-        <div className='bg-gray-100 p-8 rounded-lg text-center'>
-          <p className='text-gray-600'>
-            No workspaces found. Create your first workspace!
-          </p>
+
+      {/* empty state - no lists found */}
+      {lists.length === 0 ? (
+        <div className='flex flex-col justify-center items-center h-64 space-y-6'>
+          <div className='flex flex-col items-center space-y-4'>
+            <div className='text-center'>
+              <h3 className='text-2xl font-semibold text-white mb-2'>
+                No lists yet
+              </h3>
+              <p className='text-white max-w-md'>
+                Get started by creating your first list to organize your tasks
+                and boost your productivity.
+              </p>
+            </div>
+          </div>
         </div>
       ) : (
+        /* lists grid */
         <div
           className='
-            dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-5 4xl:gap-6 min-w-full w-full bg-background border-y-1 
-            border-foreground p-4 2xl:p-5 4xl:p-6
-          '
+        dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-5 4xl:gap-6 min-w-full w-full bg-background border-y-1 
+        border-foreground p-4 2xl:p-5 4xl:p-6
+        '
         >
-          {workspaces.map((workspace) => (
-            <WorkspaceCard.Root className='' key={workspace.id}>
+          {lists.map((list) => (
+            <WorkspaceCard.Root className='' key={list.id}>
               <WorkspaceCard.CardInfos>
-                <WorkspaceCard.Title title={workspace.name} />
-                <WorkspaceCard.Description text={workspace.description} />
+                <WorkspaceCard.Title title={list.name} />
+                <WorkspaceCard.Description
+                  text={list.description || 'No description'}
+                />
 
                 <WorkspaceCard.BadgesContainer>
                   <WorkspaceCard.Badge>
-                    {getPriorityIcon(workspace.priority)}
-                    <span>{getPriorityTitle(workspace.priority)}</span>
+                    {getPriorityIcon(list.priority)}
+                    <span>{getPriorityTitle(list.priority)}</span>
                   </WorkspaceCard.Badge>
-                  <WorkspaceCard.Badge>
-                    {getStatusIcon(workspace.status)}
-                    <span>{getStatusTitle(workspace.status)}</span>
-                  </WorkspaceCard.Badge>
+
+                  {getStatusIcon(list.status)}
+                  <span>{getStatusTitle(list.status)}</span>
                 </WorkspaceCard.BadgesContainer>
               </WorkspaceCard.CardInfos>
 
@@ -137,23 +186,19 @@ export default function Workspaces() {
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
                   title='view tasks'
-                  onClick={() =>
-                    window.open(`/workspaces/${workspace.id}`, '_self')
-                  }
+                  onClick={() => window.open(`/lists/${list.id}`, '_self')}
                 >
                   <IconEye color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
-                  title='edit workspace'
-                  onClick={() =>
-                    window.open(`/workspaces/${workspace.id}/edit`, '_self')
-                  }
+                  title='edit list'
+                  onClick={() => window.open(`/lists/${list.id}/edit`, '_self')}
                 >
                   <IconEdit color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>
                 <WorkspaceCard.Button
-                  title='delete workspace'
-                  onClick={() => handleDelete(workspace.id)}
+                  title='delete list'
+                  onClick={() => handleDelete(list.id)}
                 >
                   <IconTrash color='#FAFAFA' className='size-[1em]' />
                 </WorkspaceCard.Button>

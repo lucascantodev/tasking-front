@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export type UserSchema_Type = z.infer<typeof userSchema>;
+
 const userSchema = z.object({
   id: z.string(),
   email: z.string().email(),
@@ -8,4 +10,4 @@ const userSchema = z.object({
   updatedAt: z.string(),
 });
 
-export type User = z.infer<typeof userSchema>;
+export default userSchema;

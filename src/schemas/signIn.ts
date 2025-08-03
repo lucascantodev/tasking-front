@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export type SignUpFormValues = z.infer<typeof signInSchema>;
+export type SignISchema_Type = z.infer<typeof signInSchema>;
 
 const signInSchema = z.object({
   email: z
@@ -22,3 +22,5 @@ const signInSchema = z.object({
     .max(250, 'Password must not exceed 20 characters')
     .regex(/[0-9]/, 'Password must contain at least one number'),
 });
+
+export default signInSchema;
