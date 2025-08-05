@@ -1,5 +1,5 @@
 // src/services/task.service.ts
-import axiosApi from '@/api/axiosApi';
+import axiosApi from '@/axiosApi';
 import { Task } from '@/schemas/task';
 
 export class TaskService {

@@ -1,4 +1,6 @@
 import Header from '@/components/layout/sections/header/header';
+import { AuthProvider } from '@/contexts/auth-context';
+import { ListProvider } from '@/contexts/list-context';
 
 export default function RootLayout({
   children,
@@ -7,8 +9,12 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <Header />
-      {children}
+      <AuthProvider>
+        <ListProvider>
+          <Header />
+          {children}
+        </ListProvider>
+      </AuthProvider>
     </>
   );
 }

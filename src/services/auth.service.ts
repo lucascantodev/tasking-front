@@ -3,7 +3,7 @@ import axiosApi, {
   clearAuthToken,
   getCurrentToken,
   setAuthToken,
-} from '@/api/axiosApi';
+} from '@/axiosApi';
 import axios from 'axios';
 
 interface LoginResponse {

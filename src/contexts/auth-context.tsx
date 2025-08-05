@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSchema_Type } from '@/schemas/user';
 import authService from '@/services/auth.service';
-import { isAuthenticated, clearAuthToken } from '@/api/axiosApi';
+import { isAuthenticated, clearAuthToken } from '@/axiosApi';
 
 interface AuthContextType {
   user: UserSchema_Type | null;

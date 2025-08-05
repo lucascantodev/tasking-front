@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import * as WorkspaceCard from '@/components/cards/workspaceCard';
 import CreateNewSection from '@/components/layout/sections/main/createNewSection';
+import CreateListModal from '@/components/forms/createList';
 import { useList } from '@/contexts/list-context';
 import {
   IconPlus,
@@ -21,9 +23,17 @@ import {
 } from '@tabler/icons-react';
 import { ListPlus } from 'lucide-react';
 import { Priority, Status } from '@/dto/list';
+import { ListSchema_Type } from '@/schemas/list';
 
 export default function Workspaces() {
+  console.log('Workspaces Component State: ', {
+    lists: useList().lists,
+    isLoading: useList().isLoading,
+    error: useList().error,
+  });
+
   const { lists, isLoading, error, deleteList, refreshLists } = useList();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this list?')) {
@@ -32,6 +42,19 @@ export default function Workspaces() {
   };
 
   const handleRetry = () => {
+    refreshLists();
+  };
+
+  const handleCreateList = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleListCreated = (list: ListSchema_Type) => {
+    console.log('List created:', list);
     refreshLists();
   };
 
@@ -74,7 +97,6 @@ export default function Workspaces() {
     return icons[status];
   };
 
-  // loading state
   if (isLoading) {
     return (
       <div className='flex flex-col justify-center items-center h-64 space-y-4'>
@@ -84,7 +106,6 @@ export default function Workspaces() {
     );
   }
 
-  // error state
   if (error) {
     return (
       <div className='flex flex-col justify-center items-center h-64 space-y-6'>
@@ -115,98 +136,107 @@ export default function Workspaces() {
   }
 
   return (
-    <div
-      className='
-      container min-w-full w-full m-0 border-0 p-0 
-    '
-    >
-      <CreateNewSection
-        href='/lists/create'
-        labelText='Create a new List!'
-        className='mb-4'
-        buttonClassName='
-        flex items-center gap-2 p-1 rounded-xl
-        bg-gradient-to-r from-neutral-900 via-black to-neutral-800
-        text-white font-bold shadow-lg border border-neutral-700
-        transition-all duration-600
-        hover:scale-105 hover:bg-neutral-950 hover:shadow-xl
-        focus:outline-none focus:ring-2 focus:ring-neutral-600
-        animate-bounce hover:animate-none
-      '
-        buttonText={[
-          <ListPlus key={3} className='size-[1.50em] animate-pulse' />,
-        ]}
-      />
-
-      {/* empty state - no lists found */}
-      {lists.length === 0 ? (
-        <div className='flex flex-col justify-center items-center h-64 space-y-6'>
-          <div className='flex flex-col items-center space-y-4'>
-            <div className='text-center'>
-              <h3 className='text-2xl font-semibold text-white mb-2'>
-                No lists yet
-              </h3>
-              <p className='text-white max-w-md'>
-                Get started by creating your first list to organize your tasks
-                and boost your productivity.
-              </p>
-            </div>
+    <>
+      <div className='container min-w-full w-full m-0 border-0 p-0'>
+        <div className='dark w-full bg-background text-foreground py-6 px-4'>
+          <div className='flex gap-6 items-center'>
+            <span className='text-2xl font-medium'>Create a new List!</span>
+            <button
+              onClick={handleCreateList}
+              className='
+                flex items-center gap-2 px-4 py-2 rounded-xl
+                bg-gradient-to-r from-neutral-900 via-black to-neutral-800
+                text-white font-bold shadow-lg border border-neutral-700
+                transition-all duration-300
+                hover:scale-105 hover:bg-neutral-950 hover:shadow-xl
+                focus:outline-none focus:ring-2 focus:ring-neutral-600
+                animate-bounce hover:animate-none cursor-pointer
+              '
+            >
+              <ListPlus className='size-6 animate-pulse' />
+              <span className='font-semibold'>Add List</span>
+            </button>
           </div>
         </div>
-      ) : (
-        /* lists grid */
-        <div
-          className='
-        dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-5 4xl:gap-6 min-w-full w-full bg-background border-y-1 
-        border-foreground p-4 2xl:p-5 4xl:p-6
-        '
-        >
-          {lists.map((list) => (
-            <WorkspaceCard.Root className='' key={list.id}>
-              <WorkspaceCard.CardInfos>
-                <WorkspaceCard.Title title={list.name} />
-                <WorkspaceCard.Description
-                  text={list.description || 'No description'}
-                />
 
-                <WorkspaceCard.BadgesContainer>
-                  <WorkspaceCard.Badge>
-                    {getPriorityIcon(list.priority)}
-                    <span>{getPriorityTitle(list.priority)}</span>
-                  </WorkspaceCard.Badge>
+        {lists.length === 0 ? (
+          <div className='flex flex-col justify-center items-center h-64 space-y-6'>
+            <div className='flex flex-col items-center space-y-4'>
+              <div className='text-center'>
+                <h3 className='text-2xl font-semibold text-white mb-2'>
+                  No lists yet :(
+                </h3>
+                <p className='text-white max-w-md'>
+                  Get started by creating your first list to organize your tasks
+                  and boost your productivity.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* list grid */
+          <div
+            className='
+              dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 2xl:gap-5 4xl:gap-6 
+              min-w-full w-full bg-background border-y-1 border-foreground p-4 2xl:p-5 4xl:p-6
+            '
+          >
+            {lists.map((list) => (
+              <WorkspaceCard.Root className='' key={list.id}>
+                <WorkspaceCard.CardInfos>
+                  <WorkspaceCard.Title title={list.name} />
+                  <WorkspaceCard.Description
+                    text={list.description || 'No description'}
+                  />
 
-                  {getStatusIcon(list.status)}
-                  <span>{getStatusTitle(list.status)}</span>
-                </WorkspaceCard.BadgesContainer>
-              </WorkspaceCard.CardInfos>
+                  <WorkspaceCard.BadgesContainer>
+                    <WorkspaceCard.Badge>
+                      {getPriorityIcon(list.priority)}
+                      <span>{getPriorityTitle(list.priority)}</span>
+                    </WorkspaceCard.Badge>
+                    <WorkspaceCard.Badge>
+                      {getStatusIcon(list.status)}
+                      <span>{getStatusTitle(list.status)}</span>
+                    </WorkspaceCard.Badge>
+                  </WorkspaceCard.BadgesContainer>
+                </WorkspaceCard.CardInfos>
 
-              <WorkspaceCard.ButtonsContainer>
-                <WorkspaceCard.Button title='add task' onClick={() => {}}>
-                  <IconPlus color='#FAFAFA' className='size-[1em]' />
-                </WorkspaceCard.Button>
-                <WorkspaceCard.Button
-                  title='view tasks'
-                  onClick={() => window.open(`/lists/${list.id}`, '_self')}
-                >
-                  <IconEye color='#FAFAFA' className='size-[1em]' />
-                </WorkspaceCard.Button>
-                <WorkspaceCard.Button
-                  title='edit list'
-                  onClick={() => window.open(`/lists/${list.id}/edit`, '_self')}
-                >
-                  <IconEdit color='#FAFAFA' className='size-[1em]' />
-                </WorkspaceCard.Button>
-                <WorkspaceCard.Button
-                  title='delete list'
-                  onClick={() => handleDelete(list.id)}
-                >
-                  <IconTrash color='#FAFAFA' className='size-[1em]' />
-                </WorkspaceCard.Button>
-              </WorkspaceCard.ButtonsContainer>
-            </WorkspaceCard.Root>
-          ))}
-        </div>
-      )}
-    </div>
+                <WorkspaceCard.ButtonsContainer>
+                  <WorkspaceCard.Button title='add task' onClick={() => {}}>
+                    <IconPlus color='#FAFAFA' className='size-[1em]' />
+                  </WorkspaceCard.Button>
+                  <WorkspaceCard.Button
+                    title='view tasks'
+                    onClick={() => window.open(`/lists/${list.id}`, '_self')}
+                  >
+                    <IconEye color='#FAFAFA' className='size-[1em]' />
+                  </WorkspaceCard.Button>
+                  <WorkspaceCard.Button
+                    title='edit list'
+                    onClick={() =>
+                      window.open(`/lists/${list.id}/edit`, '_self')
+                    }
+                  >
+                    <IconEdit color='#FAFAFA' className='size-[1em]' />
+                  </WorkspaceCard.Button>
+                  <WorkspaceCard.Button
+                    title='delete list'
+                    onClick={() => handleDelete(list.id)}
+                  >
+                    <IconTrash color='#FAFAFA' className='size-[1em]' />
+                  </WorkspaceCard.Button>
+                </WorkspaceCard.ButtonsContainer>
+              </WorkspaceCard.Root>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* create list modal */}
+      <CreateListModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleListCreated}
+      />
+    </>
   );
 }

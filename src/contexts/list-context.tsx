@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ListSchema_Type } from '@/schemas/list';
-import listService from '@/services/list.service';
+import { ListSchema_Type } from '@/schemas/list'; // ✅ Usar tipo correto
+import { ListService } from '@/services/list.service'; // ✅ Importar classe
 import { useAuth } from '@/contexts/auth-context';
 import { List } from '@/dto/list';
 
@@ -13,10 +13,10 @@ interface ListContextType {
   error: string | null;
   setCurrentList: (list: List | null) => void;
   refreshLists: () => Promise<void>;
-  createList: (list: { name: string }) => Promise<ListSchema_Type>;
-  updateList: (id: number, list: { name?: string }) => Promise<ListSchema_Type>;
+  createList: (list: ListSchema_Type) => Promise<List>;
+  updateList: (id: number, list: { name?: string }) => Promise<List>;
   deleteList: (id: number) => Promise<void>;
-  duplicateList: (id: number, newName?: string) => Promise<ListSchema_Type>;
+  // duplicateList: (id: number, newName?: string) => Promise<List>;
 }
 
 const ListContext = createContext<ListContextType | undefined>(undefined);
@@ -28,35 +28,53 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
+  const listService = ListService.getInstance();
+
   const refreshLists = async () => {
+    console.log(
+      '🔍 [ListContext] refreshLists called, isAuthenticated:',
+      isAuthenticated
+    );
+
     if (!isAuthenticated) {
+      console.log('🔍 [ListContext] User not authenticated, clearing lists');
       setLists([]);
       setIsLoading(false);
+      setError(null);
       return;
     }
 
     try {
+      console.log('🔄 [ListContext] Starting to refresh lists...');
       setIsLoading(true);
       setError(null);
+
       const data = await listService.getAll();
+      console.log(
+        '✅ [ListContext] Lists loaded successfully:',
+        data.length,
+        'lists'
+      );
       setLists(data);
-    } catch (err) {
+    } catch (err: any) {
+      console.error('🚩 [ListContext] Error loading lists:', err);
       setError('❌ Failed to load lists');
-      console.error('❌ Error loading lists:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const createList = async (list: { name: string }) => {
+  const createList = async (list: ListSchema_Type) => {
     try {
+      console.log('🔄 [ListContext] Creating new list...');
       setError(null);
       const newList = await listService.create(list);
+      console.log('✅ [ListContext] List created, updating state...');
       setLists((prev) => [...prev, newList]);
       return newList;
-    } catch (err) {
+    } catch (err: any) {
+      console.error('🚩 [ListContext] Error creating list:', err);
       setError('❌ Failed to create list');
-      console.error('❌ Error creating list:', err);
       throw err;
     }
   };
@@ -92,7 +110,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const duplicateList = async (id: number, newName?: string) => {
+  /* const duplicateList = async (id: number, newName?: string) => {
     try {
       setError(null);
       const duplicatedList = await listService.duplicate(id, newName);
@@ -103,9 +121,13 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
       console.error('❌ Error duplicating list:', err);
       throw err;
     }
-  };
+  }; */
 
   useEffect(() => {
+    console.log(
+      '🔄 [ListContext] useEffect triggered, isAuthenticated:',
+      isAuthenticated
+    );
     refreshLists();
   }, [isAuthenticated]);
 
@@ -119,7 +141,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     createList,
     updateList,
     deleteList,
-    duplicateList,
+    // duplicateList,
   };
 
   return <ListContext.Provider value={value}>{children}</ListContext.Provider>;
