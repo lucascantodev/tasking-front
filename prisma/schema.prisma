@@ -43,9 +43,12 @@ model List {
 }
 
 model Task {
-  id         Int     @id @default(autoincrement())
-  listId     Int     @map("list_id") // FK para List
-  name       String
+  id          Int     @id @default(autoincrement())
+  listId      Int     @map("list_id") // FK para List
+  name        String
+  description String
+  priority    String
+  status      String
   isComplete Boolean @default(false) @map("is_complete")
   
   // Relacionamento
