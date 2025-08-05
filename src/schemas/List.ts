@@ -1,36 +1,26 @@
 import { z } from 'zod';
 
-const priorityEnum = z.enum(['low', 'medium', 'high'], {
-  required_error: 'Priority is required.',
-  invalid_type_error: 'Priority must be one of: low, medium, high.',
-});
-
-const statusEnum = z.enum(['not-started', 'in-progress', 'completed'], {
-  required_error: 'Status is required.',
-  invalid_type_error:
-    'Status must be one of: not-started, in-progress, completed.',
-});
+import priorityEnum from '@/schemas/priority';
+import statusEnum from '@/schemas/status';
 
 const listSchema = z
   .object({
-    /* id: z
+    id: z
       .number({
         required_error: 'Id in List is required.',
         invalid_type_error:
-          'Id in List should be a number of a type to coerce to number.',
+          'Id in List should be a number or a type to coerce to number.',
       })
       .positive({ message: "Id in List should be greater than 0 '> 0'." })
-      .int({ message: 'Id in List should be an integer number.' }), */
-
-    /* owner: z
+      .int({ message: 'Id in List should be an integer number.' }),
+    owner: z
       .number({
         required_error: 'Owner in List is required.',
         invalid_type_error:
           'Owner in List should be a number of a type to coerce to number.',
       })
       .positive({ message: "Owner in List should be greater than 0 '> 0'." })
-      .int({ message: 'Owner in List should be an integer number.' }), */
-
+      .int({ message: 'Owner in List should be an integer number.' }),
     name: z
       .string({
         required_error: 'Name in List is required.',
@@ -58,8 +48,5 @@ const listSchema = z
 
 // type exports
 export type ListSchema_Type = z.infer<typeof listSchema>;
-export type Priority = z.infer<typeof priorityEnum>;
-export type Status = z.infer<typeof statusEnum>;
 
 export default listSchema;
-export { priorityEnum, statusEnum };

@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+import priorityEnum from '@/schemas/priority';
+import statusEnum from '@/schemas/status';
+
 export type TaskSchema_Type = z.infer<typeof taskSchema>;
 
 const taskSchema = z.object({
@@ -26,9 +29,18 @@ const taskSchema = z.object({
     })
     .trim()
     .nonempty({ message: "Name in Task can't be empty." }),
+  description: z
+    .string({
+      invalid_type_error: 'Description in Task should be a string.',
+    })
+    .trim()
+    .max(500, {
+      message: "Description shouldn't be longer than 500 characters lenght.",
+    })
+    .default(''),
+  priority: priorityEnum,
+  status: statusEnum,
   isComplete: z.boolean().default(false),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
 });
 
 export default taskSchema;
