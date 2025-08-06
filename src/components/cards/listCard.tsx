@@ -10,7 +10,8 @@ import {
 
 import { cn } from '@/lib/utils';
 import DefaultProps, { ButtonProps } from '@/dto/props';
-import { Priority, Status } from '@/schemas/workspace';
+import { Priority } from '@/schemas/priority';
+import { Status } from '@/schemas/status';
 import { Badge as ShadBadge } from '@/components/ui/badge';
 
 export function Root({ className, children, ...props }: DefaultProps) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import * as WorkspaceCard from '@/components/cards/workspaceCard';
+import * as LCard from '@/components/cards/listCard';
 import CreateNewSection from '@/components/layout/sections/main/createNewSection';
 import CreateListModal from '@/components/forms/createList';
 import { useList } from '@/contexts/list-context';
@@ -182,51 +182,51 @@ export default function Workspaces() {
             '
           >
             {lists.map((list) => (
-              <WorkspaceCard.Root className='' key={list.id}>
-                <WorkspaceCard.CardInfos>
-                  <WorkspaceCard.Title title={list.name} />
-                  <WorkspaceCard.Description
+              <LCard.Root className='' key={list.id}>
+                <LCard.CardInfos>
+                  <LCard.Title title={list.name} />
+                  <LCard.Description
                     text={list.description || 'No description'}
                   />
 
-                  <WorkspaceCard.BadgesContainer>
-                    <WorkspaceCard.Badge>
+                  <LCard.BadgesContainer>
+                    <LCard.Badge>
                       {getPriorityIcon(list.priority)}
                       <span>{getPriorityTitle(list.priority)}</span>
-                    </WorkspaceCard.Badge>
-                    <WorkspaceCard.Badge>
+                    </LCard.Badge>
+                    <LCard.Badge>
                       {getStatusIcon(list.status)}
                       <span>{getStatusTitle(list.status)}</span>
-                    </WorkspaceCard.Badge>
-                  </WorkspaceCard.BadgesContainer>
-                </WorkspaceCard.CardInfos>
+                    </LCard.Badge>
+                  </LCard.BadgesContainer>
+                </LCard.CardInfos>
 
-                <WorkspaceCard.ButtonsContainer>
-                  <WorkspaceCard.Button title='add task' onClick={() => {}}>
+                <LCard.ButtonsContainer>
+                  <LCard.Button title='add task' onClick={() => {}}>
                     <IconPlus color='#FAFAFA' className='size-[1em]' />
-                  </WorkspaceCard.Button>
-                  <WorkspaceCard.Button
+                  </LCard.Button>
+                  <LCard.Button
                     title='view tasks'
                     onClick={() => window.open(`/lists/${list.id}`, '_self')}
                   >
                     <IconEye color='#FAFAFA' className='size-[1em]' />
-                  </WorkspaceCard.Button>
-                  <WorkspaceCard.Button
+                  </LCard.Button>
+                  <LCard.Button
                     title='edit list'
                     onClick={() =>
                       window.open(`/lists/${list.id}/edit`, '_self')
                     }
                   >
                     <IconEdit color='#FAFAFA' className='size-[1em]' />
-                  </WorkspaceCard.Button>
-                  <WorkspaceCard.Button
+                  </LCard.Button>
+                  <LCard.Button
                     title='delete list'
                     onClick={() => handleDelete(list.id)}
                   >
                     <IconTrash color='#FAFAFA' className='size-[1em]' />
-                  </WorkspaceCard.Button>
-                </WorkspaceCard.ButtonsContainer>
-              </WorkspaceCard.Root>
+                  </LCard.Button>
+                </LCard.ButtonsContainer>
+              </LCard.Root>
             ))}
           </div>
         )}

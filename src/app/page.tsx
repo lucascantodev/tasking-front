@@ -40,8 +40,8 @@ export default function Login() {
       });
 
       console.log('✅ Login successful!');
-      console.log('⏩Redirecting to workspaces...');
-      router.push('/workspaces');
+      console.log('⏩Redirecting to lists...');
+      router.push('/lists');
     } catch (error) {
       console.error('🚩Login failed!', error);
       setError(
