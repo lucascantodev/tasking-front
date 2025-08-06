@@ -1,6 +1,5 @@
 // src/app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 
@@ -44,18 +43,18 @@ export async function POST(request: NextRequest) {
 
     // generate tokens
     const accessToken = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email 
+      {
+        userId: user.id,
+        email: user.email,
       },
       process.env.JWT_SECRET!,
       { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
-      { 
-        userId: user.id, 
-        type: 'refresh' 
+      {
+        userId: user.id,
+        type: 'refresh',
       },
       process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!,
       { expiresIn: '7d' }
