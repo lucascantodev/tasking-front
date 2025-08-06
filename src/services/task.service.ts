@@ -1,6 +1,8 @@
 // src/services/task.service.ts
 import axiosApi from '@/axiosApi';
-import { Task } from '@/schemas/task';
+import { TaskSchema_Type as Task } from '@/schemas/task';
+import { Priority } from '@/schemas/priority';
+import { Status } from '@/schemas/status';
 
 export class TaskService {
   private static instance: TaskService;
@@ -17,11 +19,33 @@ export class TaskService {
   // get all user tasks
   public async getAll(): Promise<Task[]> {
     try {
+      console.log('🔄 [TaskService] Fetching all tasks...');
+
+      console.log('📤 [TaskService] Making GET request to /tasks');
       const response = await axiosApi.get<Task[]>('/tasks');
+
+      console.log(
+        '✅ [TaskService] Tasks fetched successfully:',
+        response.data.length,
+        'tasks'
+      );
+      console.log('📋 [TaskService] Response data:', response.data);
       return response.data;
-    } catch (error) {
-      console.error('❌ Error fetching all tasks:', error);
-      throw new Error('❌ Failed to fetch tasks');
+    } catch (error: any) {
+      console.error('🚩 [TaskService] Error fetching all tasks:', error);
+
+      // ✅ Log mais detalhado do erro
+      console.error('🚩 [TaskService] Detailed error:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      });
+
+      throw new Error('Failed to fetch tasks');
     }
   }
 
@@ -42,33 +66,124 @@ export class TaskService {
   // get tasks by list id
   public async getByListId(listId: number): Promise<Task[]> {
     try {
-      const response = await axiosApi.get<Task[]>(`/tasks?listId=${listId}`);
+      console.log('🔄 [TaskService] Fetching tasks by listId...');
+
+      console.log('📤 [TaskService] Making GET request to /tasks');
+      const response = await axiosApi.get<Task[]>('/tasks', {
+        data: { listId: listId },
+      });
+
+      console.log(
+        '✅ [TaskService] Tasks fetched successfully:',
+        response.data.length,
+        'tasks'
+      );
+      console.log('📋 [TaskService] Response data:', response.data);
       return response.data;
-    } catch (error) {
-      console.error(`❌ Error fetching tasks for list ${listId}:`, error);
-      throw new Error(`❌ Failed to fetch tasks for list ${listId}`);
+    } catch (error: any) {
+      console.error('🚩 [TaskService] Error fetching all tasks:', error);
+
+      // ✅ Log mais detalhado do erro
+      console.error('🚩 [TaskService] Detailed error:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      });
+
+      throw new Error('Failed to fetch tasks');
     }
   }
 
   // create new task
   public async create(newTask: {
     name: string;
+    description: string;
+    priority: Priority;
+    status: Status;
     listId: number;
   }): Promise<Task> {
     try {
-      // validate data before sending
-      this.validateTask(newTask);
+      console.log('🔄 [TaskService] Starting task creation...');
+      console.log('📋 [TaskService] Data to be sent:', newTask);
 
-      const response = await axiosApi.post<Task>('/tasks', newTask);
-      return response.data;
-    } catch (error: any) {
-      console.error('❌ Error creating task:', error);
-
-      if (error.response?.status === 400) {
-        throw new Error(error.response.data.error || '🚧 Invalid task data');
+      // Validar dados antes do envio
+      console.log('🔍 [TaskService] Validating data...');
+      if (!newTask.name || newTask.name.trim().length === 0) {
+        console.error('🚩 [TaskService] Validation failed: name is required');
+        throw new Error('Task name is required');
       }
 
-      throw new Error('❌ Failed to create task');
+      if (newTask.listId <= 0) {
+        console.error('🚩 [TaskService] Validation failed: listId is required');
+        throw new Error('Task listId is required');
+      }
+
+      // log dos headers que serão enviados
+      console.log('📤 [TaskService] Making POST request to /tasks');
+      console.log('📤 [TaskService] Request config:', {
+        url: '/tasks',
+        method: 'POST',
+        data: newTask,
+      });
+
+      const response = await axiosApi.post<Task>('/tasks', newTask);
+
+      console.log('✅ [TaskService] Task created successfully!');
+      console.log('📨 [TaskService] Response status:', response.status);
+      console.log('📨 [TaskService] Response data:', response.data);
+      console.log('📨 [TaskService] Response headers:', response.headers);
+
+      return response.data;
+    } catch (error: any) {
+      console.error('🚩 [TaskService] Error creating task:', error);
+
+      // log detalhado do erro
+      console.error('🚩 [TaskService] Detailed error info:', {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        response: {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: error.response?.headers,
+        },
+        request: {
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.config?.data,
+          headers: error.config?.headers,
+        },
+        stack: error.stack,
+      });
+
+      if (error.response?.status === 400) {
+        const errorMessage = error.response.data.message || 'Invalid task data';
+        console.error('🚩 [TaskService] Bad request (400):', errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      if (error.response?.status === 401) {
+        console.error('🚩 [TaskService] Unauthorized (401)');
+        throw new Error('Unauthorized access');
+      }
+
+      if (error.response?.status === 403) {
+        console.error('🚩 [TaskService] Forbidden (403)');
+        throw new Error('Access forbidden');
+      }
+
+      if (error.response?.status === 500) {
+        console.error('🚩 [TaskService] Internal server error (500)');
+        throw new Error('Server error');
+      }
+
+      console.error('🚩 [TaskService] Unknown error occurred');
+      throw new Error('Failed to create task');
     }
   }
 
