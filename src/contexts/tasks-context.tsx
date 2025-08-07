@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { TaskSchema_Type } from '@/schemas/task';
+import { Priority } from '@/schemas/priority';
+import { Status } from '@/schemas/status';
 import taskService from '@/services/task.service';
 import { useAuth } from '@/contexts/auth-context';
 import { Task } from '@/dto/task';
@@ -17,6 +19,9 @@ interface TasksContextType {
   refreshTasks: () => Promise<void>;
   createTask: (task: {
     name: string;
+    description: string;
+    priority: Priority;
+    status: Status;
     listId: number;
   }) => Promise<TaskSchema_Type>;
   updateTaskService: (
@@ -70,7 +75,13 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   };
 
   // service functions (api calls)
-  const createTask = async (task: { name: string; listId: number }) => {
+  const createTask = async (task: {
+    name: string;
+    description: string;
+    priority: Priority;
+    status: Status;
+    listId: number;
+  }) => {
     try {
       setError(null);
       const newTask = await taskService.create(task);
