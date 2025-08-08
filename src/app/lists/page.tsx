@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import * as LCard from '@/components/cards/listCard';
-import CreateNewSection from '@/components/layout/sections/main/createNewSection';
+import * as CreateSec from '@/components/layout/sections/main/createNewSection';
 import CreateListModal from '@/components/forms/createList';
 import { useList } from '@/contexts/list-context';
 import {
@@ -21,7 +21,6 @@ import {
   IconExclamationCircle,
   IconRefresh,
 } from '@tabler/icons-react';
-import { ListPlus } from 'lucide-react';
 import { Priority, Status } from '@/dto/list';
 import { ListSchema_Type } from '@/schemas/list';
 
@@ -138,26 +137,17 @@ export default function Workspaces() {
   return (
     <>
       <div className='container min-w-full w-full m-0 border-0 p-0'>
-        <div className='dark w-full bg-background text-foreground py-6 px-4'>
-          <div className='flex gap-6 items-center'>
-            <span className='text-2xl font-medium'>Create a new List!</span>
-            <button
-              onClick={handleCreateList}
-              className='
-                flex items-center gap-2 px-4 py-2 rounded-xl
-                bg-gradient-to-r from-neutral-900 via-black to-neutral-800
-                text-white font-bold shadow-lg border border-neutral-700
-                transition-all duration-300
-                hover:scale-105 hover:bg-neutral-950 hover:shadow-xl
-                focus:outline-none focus:ring-2 focus:ring-neutral-600
-                animate-bounce hover:animate-none cursor-pointer
-              '
-            >
-              <ListPlus className='size-6 animate-pulse' />
-              <span className='font-semibold'>Add List</span>
-            </button>
-          </div>
-        </div>
+        <CreateSec.Root>
+          <CreateSec.Container>
+            <CreateSec.Label>Create a new List!</CreateSec.Label>
+            <CreateSec.Button>
+              <span className='font-bold text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl 5xl:text-4xl'>
+                Add a List
+              </span>
+              <IconPlus className='w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 2xl:w-11 2xl:h-11 4xl:w-13 4xl:h-13 5xl:w-16 5xl:h-16' />
+            </CreateSec.Button>
+          </CreateSec.Container>
+        </CreateSec.Root>
 
         {lists.length === 0 ? (
           <div className='flex flex-col justify-center items-center h-64 space-y-6'>
