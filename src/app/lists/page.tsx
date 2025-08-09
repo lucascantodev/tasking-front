@@ -202,7 +202,7 @@ export default function Workspaces() {
                     title='view tasks'
                     onClick={() => {
                       setCurrentList(list);
-                      setTimeout(() => router.push(`/lists/tasks/`), 2000);
+                      router.push(`/lists/tasks/`);
                     }}
                   >
                     <IconEye color='#FAFAFA' className='size-[1em]' />
