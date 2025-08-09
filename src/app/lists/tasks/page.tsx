@@ -7,16 +7,28 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 
-import { Task } from '@/dto/task';
 import * as CreateSec from '@components/layout/sections/main/createNewSection';
 import * as TaskList from '@components/layout/listviews/tasksListView';
+import { TaskPriority } from '@/components/badges/taskPriority';
+import { TaskStatus } from '@/components/badges/taskStatus';
+import { BottomUpModal } from '@/components/modals/bottomUpModal';
 import { useList } from '@/contexts/list-context';
 import { useTasks } from '@/contexts/tasks-context';
+import { useState } from 'react';
+import { Task } from '@/dto/task';
 
 export default function TasksPage() {
   const { currentList } = useList();
-  const { tasks, isLoading, error, getTasksByListId, refreshTasks } =
-    useTasks();
+  const {
+    tasks,
+    isLoading,
+    error,
+    currentTask,
+    setCurrentTask,
+    getTasksByListId,
+    refreshTasks,
+  } = useTasks();
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
 
   console.log('currentList value: ', currentList);
 
@@ -33,7 +45,24 @@ export default function TasksPage() {
     );
   }
 
-  if (error) {
+  const handleTaskSelect = (task: Task) => {
+    const mq = window.matchMedia('(width >= 768px)'); // md: tw media match
+
+    if (mq.matches) {
+      setCurrentTask(task);
+      setIsDetailModalOpen(false);
+    } else {
+      setCurrentTask(task);
+      setIsDetailModalOpen(true);
+    }
+  };
+
+  if (error || !currentList) {
+    const actualError =
+      !error && !currentList
+        ? "Couldn't find selected list data. Try login on or retry."
+        : null;
+
     return (
       <div className='flex flex-col justify-center items-center h-64 space-y-6'>
         <div className='flex flex-col items-center space-y-4'>
@@ -43,7 +72,7 @@ export default function TasksPage() {
               Failed to load tasks
             </h3>
             <p className='text-gray-600 max-w-md'>
-              {error ||
+              {actualError ||
                 'Something went wrong while loading your tasks. Please try again.'}
             </p>
           </div>
@@ -62,7 +91,7 @@ export default function TasksPage() {
     );
   }
 
-  const listTasks = getTasksByListId(currentList!.id);
+  const listTasks = getTasksByListId(currentList.id);
 
   return (
     <main className='h-full'>
@@ -86,11 +115,6 @@ export default function TasksPage() {
           <TaskList.Root>
             <TaskList.TableRoot>
               {listTasks!.map((v, i) => {
-                // Limit display name length to 12 chars in tasks listview
-                const taskname = v.name.slice(0, 11);
-                const task = v;
-                task.name = taskname;
-
                 return (
                   <TaskList.TaskItem
                     key={i}
@@ -108,9 +132,7 @@ export default function TasksPage() {
                       console.log('Task Checked');
                       return true;
                     }}
-                    setCurrentTask={(task) => {
-                      console.log('Task Selected');
-                    }}
+                    setCurrentTask={handleTaskSelect}
                   />
                 );
               })}
@@ -120,30 +142,87 @@ export default function TasksPage() {
           <div className='hidden md:block w-[75%] h-0 md:w-0 md:h-[80%] my-4 md:mx-4 md:my-0 border-1 self-center'></div>
 
           {/* ── Right: task detail ───────────────────────────────────────────────────────── */}
-          <div className='hidden w-full h-full md:w-2/3 p-6 md:flex items-start'>
-            <h2 className='text-2xl font-bold'>Taskname</h2>
-            <div className='mt-4 space-y-2 text-sm leading-relaxed'>
-              <p>
-                Task Description Task Description Task Description Task
-                Description Task Description Task Description Task Description
-                Task Description
-              </p>
-              <p>
-                Task Description Task Description Task Description Task
-                Description Task Description Task Description Task Description
-                Task Description
-              </p>
-              <p>Task Description Task Description Task Description</p>
+          {isDetailModalOpen ? (
+            <div className='dark w-full h-3/4 md:w-2/3 md:hidden'>
+              <BottomUpModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                title='Task Details'
+              >
+                <h2
+                  className='
+                    dark text-foreground font-bold break-all
+                    text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl 
+                    4xl:text-6xl 5xl:text-7xl
+                  '
+                >
+                  {currentTask ? currentTask.name : 'No Task Selected :/'}
+                </h2>
+                {currentTask ? (
+                  <>
+                    <div
+                      className='
+                        dark mt-4 xl:mt-6 2xl:mt-7 4xl:mt-8 space-y-2 leading-relaxed
+                        text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 
+                        4xl:text-3xl 5xl:text-4xl
+                      '
+                    >
+                      <p className='text-foreground break-all'>
+                        {currentTask.description}
+                      </p>
+                    </div>
+                    <div
+                      className='
+                        mt-6 xl:mt-8 2xl:mt-8.5 4xl:mt-10 flex flex-wrap gap-2
+                        sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-7 
+                        4xl:gap-8 5xl:gap-9
+                      '
+                    >
+                      <TaskPriority priority={currentTask.priority} />
+                      <TaskStatus status={currentTask.status} />
+                    </div>
+                  </>
+                ) : null}
+              </BottomUpModal>
             </div>
-            <div className='mt-6 flex flex-wrap gap-3'>
-              <span className='inline-block px-3 py-1 text-xs font-semibold rounded-full bg-orange-500 text-white'>
-                Medium
-              </span>
-              <span className='inline-block px-3 py-1 text-xs font-semibold rounded-full border border-border'>
-                Not Started
-              </span>
+          ) : (
+            <div className='dark hidden w-full h-3/4 md:w-2/3 p-6 md:flex flex-col items-start'>
+              <h2
+                className='
+                  dark text-foreground font-bold break-all
+                  text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl 
+                  4xl:text-6xl 5xl:text-7xl
+                '
+              >
+                {currentTask ? currentTask.name : 'No Task Selected :/'}
+              </h2>
+              {currentTask ? (
+                <>
+                  <div
+                    className='
+                      dark mt-4 xl:mt-6 2xl:mt-7 4xl:mt-8 space-y-2 leading-relaxed
+                      text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 
+                      4xl:text-3xl 5xl:text-4xl
+                    '
+                  >
+                    <p className='text-foreground break-all'>
+                      {currentTask.description}
+                    </p>
+                  </div>
+                  <div
+                    className='
+                      mt-6 xl:mt-8 2xl:mt-8.5 4xl:mt-10 flex flex-wrap gap-2
+                      sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 2xl:gap-7 
+                      4xl:gap-8 5xl:gap-9
+                    '
+                  >
+                    <TaskPriority priority={currentTask.priority} />
+                    <TaskStatus status={currentTask.status} />
+                  </div>
+                </>
+              ) : null}
             </div>
-          </div>
+          )}
         </div>
       </section>
     </main>
