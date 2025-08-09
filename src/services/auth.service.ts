@@ -11,6 +11,11 @@ interface LoginResponse {
   accessToken: string;
 }
 
+interface JoinResponse {
+  user: UserSchema_Type;
+  accessToken: string;
+}
+
 class AuthService {
   private readonly API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/`;
 
@@ -48,6 +53,44 @@ class AuthService {
     } catch (error) {
       console.error(`🚩 Login failed: \n${error}`);
       throw new Error('🚩 Login failed: ' + (error as Error).message);
+    }
+  }
+
+  async join(userData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<JoinResponse> {
+    try {
+      const response = await fetch(`${this.API_URL}auth/join`, {
+        method: 'POST',
+        credentials: 'include', // includes HttpOnly cookies (not needed, but leave it there)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Invalid user data');
+      }
+
+      const data: JoinResponse = await response.json();
+
+      setAuthToken(data.accessToken);
+
+      const user = data.user;
+
+      console.log(
+        `✅ [AuthService] Join successful, token stored in memory: \n ${data.accessToken}`
+      );
+      console.log('User data:', data.user);
+
+      return data;
+    } catch (error) {
+      console.error(`🚩 Join failed: \n${error}`);
+      throw new Error('🚩 Join failed: ' + (error as Error).message);
     }
   }
 
