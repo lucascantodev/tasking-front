@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { TaskSchema_Type } from '@/schemas/task';
 import { Priority } from '@/schemas/priority';
 import { Status } from '@/schemas/status';
@@ -10,12 +10,14 @@ import { Task } from '@/dto/task';
 
 interface TasksContextType {
   tasks: Task[];
+  currentTask: Task | null;
   isLoading: boolean;
   error: string | null;
   addTask: (task: Task) => void;
   updateTask: (id: number, task: Partial<Task>) => void;
   deleteTask: (id: number) => void;
   getTasksByListId: (listId: number) => Task[];
+  setCurrentTask: (task: Task | null) => void;
   refreshTasks: () => Promise<void>;
   createTask: (task: {
     name: string;
@@ -35,6 +37,7 @@ const TasksContext = createContext<TasksContextType | undefined>(undefined);
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<TaskSchema_Type[]>([]);
+  const [currentTask, setCurrentTask] = useState<TaskSchema_Type | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
@@ -126,14 +129,24 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     return tasks.filter((task) => task.listId === listId);
   };
 
+  useEffect(() => {
+    console.log(
+      '🔄 [TaskContext] useEffect triggered, isAuthenticated:',
+      isAuthenticated
+    );
+    refreshTasks();
+  }, [isAuthenticated]);
+
   const value = {
     tasks,
+    currentTask,
     isLoading,
     error,
     addTask,
     updateTask,
     deleteTask,
     getTasksByListId,
+    setCurrentTask,
     refreshTasks,
     createTask,
     updateTaskService,
