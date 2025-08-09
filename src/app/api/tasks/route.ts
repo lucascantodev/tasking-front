@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
+import { number } from 'zod';
 
 //  Get /tasks get all endpoint
 export async function GET(request: NextRequest) {
@@ -31,33 +32,22 @@ export async function GET(request: NextRequest) {
     };
     console.log('✅ [API] Token verified for user:', decoded.userId);
 
-    // parse request body
-    let body;
-    try {
-      body = await request.json();
-      console.log('📥 [API] Request body received:', body);
-    } catch (parseError: any) {
-      console.error(
-        '🚩 [API] Failed to parse request body:',
-        parseError.message
-      );
-      return NextResponse.json(
-        { message: 'Invalid JSON body' },
-        { status: 400 }
-      );
+    // get listId query param
+    const searchParams = request.nextUrl.searchParams;
+    let listIdParam = searchParams.get('listId');
+    if (listIdParam) {
+      listIdParam = listIdParam.trim();
     }
 
-    // Extracting listId
-    const { listId } = body;
-    console.log('🔍 [API] Extracted fields:', {
-      listId,
-    });
+    // Parse listId to number, returns NaN if fails
+    const listId = Number(listIdParam);
 
     // validate required fields
     let tasks = undefined;
     if (!listId || typeof listId !== 'number' || listId <= 0) {
       // fetch all tasks
-      console.log('🔄 [API] listId field not present!');
+      console.log('🔄 [API] listId field not present or invalid!');
+      console.log('🔄 [API] listId field: ', listId);
       console.log('🔄 [API] Fetching all tasks from database...');
       tasks = await prisma.task.findMany({
         orderBy: {
@@ -70,7 +60,7 @@ export async function GET(request: NextRequest) {
       console.log('🔄 [API] Fetching tasks by listId from database...');
       tasks = await prisma.task.findMany({
         where: {
-          listId: body.listId,
+          listId: listId,
         },
         orderBy: {
           priority: 'asc',
