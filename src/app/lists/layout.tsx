@@ -9,12 +9,8 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <AuthProvider>
-        <ListProvider>
-          <Header />
-          {children}
-        </ListProvider>
-      </AuthProvider>
+      <Header />
+      {children}
     </>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import * as LCard from '@/components/cards/listCard';
 import * as CreateSec from '@/components/layout/sections/main/createNewSection';
 import CreateListModal from '@/components/forms/createList';
@@ -31,7 +32,9 @@ export default function Workspaces() {
     error: useList().error,
   });
 
-  const { lists, isLoading, error, deleteList, refreshLists } = useList();
+  const router = useRouter();
+  const { lists, isLoading, error, setCurrentList, deleteList, refreshLists } =
+    useList();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = (id: number) => {
@@ -197,7 +200,10 @@ export default function Workspaces() {
                   </LCard.Button>
                   <LCard.Button
                     title='view tasks'
-                    onClick={() => window.open(`/lists/${list.id}`, '_self')}
+                    onClick={() => {
+                      setCurrentList(list);
+                      setTimeout(() => router.push(`/lists/tasks/`), 2000);
+                    }}
                   >
                     <IconEye color='#FAFAFA' className='size-[1em]' />
                   </LCard.Button>

@@ -30,16 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' style={{ height: '100%' }}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a]`}
+        className={`h-full ${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a]`}
       >
         <AuthProvider>
           <AuthErrorProvider>
             <ListProvider>
-              <TasksProvider>
-                {children}
-              </TasksProvider>
+              <TasksProvider>{children}</TasksProvider>
             </ListProvider>
           </AuthErrorProvider>
         </AuthProvider>
