@@ -11,6 +11,11 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
+  join: (userData: {
+    name: string;
+    email: string;
+    password: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -67,6 +72,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const join = async (userData: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      const response = await authService.join(userData);
+      setUser(response.user);
+
+      console.log('✅ Join successful in context');
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : '🚩 Join failed';
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setIsLoading(true);
@@ -90,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     error,
     login,
+    join,
     logout,
   };
 
