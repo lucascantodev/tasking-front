@@ -88,7 +88,7 @@ export function TaskItem({
             2xl:text-2xl 4xl:text-4xl 5xl:text-5xl font-medium lg:font-semibold text-foreground truncate 
         '
         >
-          {task.name}
+          {task.name.slice(0, 11)}
         </span>
         <TaskPriority priority={task.priority} />
       </td>
