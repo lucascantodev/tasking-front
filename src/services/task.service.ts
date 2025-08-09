@@ -69,9 +69,7 @@ export class TaskService {
       console.log('🔄 [TaskService] Fetching tasks by listId...');
 
       console.log('📤 [TaskService] Making GET request to /tasks');
-      const response = await axiosApi.get<Task[]>('/tasks', {
-        data: { listId: listId },
-      });
+      const response = await axiosApi.get<Task[]>(`/tasks/listId=${listId}`);
 
       console.log(
         '✅ [TaskService] Tasks fetched successfully:',
