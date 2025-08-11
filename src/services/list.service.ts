@@ -1,6 +1,6 @@
 import axiosApi from '@/axiosApi';
 import { List } from '@/dto/list';
-import { ListSchema_Type } from '@/schemas/list';
+import { CreateListSchema_Type } from '@/schemas/list';
 
 export class ListService {
   private static instance: ListService;
@@ -79,7 +79,7 @@ export class ListService {
   }
 
   // create new list
-  public async create(newList: ListSchema_Type): Promise<List> {
+  public async create(newList: CreateListSchema_Type): Promise<List> {
     try {
       console.log('🔄 [ListService] Starting list creation...');
       console.log('📋 [ListService] Data to be sent:', newList);
