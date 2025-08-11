@@ -36,6 +36,7 @@ export default function Workspaces() {
   const { lists, isLoading, error, setCurrentList, deleteList, refreshLists } =
     useList();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this list?')) {
@@ -137,13 +138,25 @@ export default function Workspaces() {
     );
   }
 
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = (newList: any) => {
+    refreshLists();
+  };
+
   return (
     <>
       <div className='container min-w-full w-full m-0 border-0 p-0'>
         <CreateSec.Root>
           <CreateSec.Container>
             <CreateSec.Label>Create a new List!</CreateSec.Label>
-            <CreateSec.Button>
+            <CreateSec.Button onClick={handleOpenCreateModal}>
               <span className='font-bold text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl 5xl:text-4xl'>
                 Add a List
               </span>
@@ -151,6 +164,12 @@ export default function Workspaces() {
             </CreateSec.Button>
           </CreateSec.Container>
         </CreateSec.Root>
+        
+        <CreateListModal 
+          isOpen={isCreateModalOpen} 
+          onClose={handleCloseCreateModal} 
+          onSuccess={handleCreateSuccess}
+        />
 
         {lists.length === 0 ? (
           <div className='flex flex-col justify-center items-center h-64 space-y-6'>
