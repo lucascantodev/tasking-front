@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ListSchema_Type } from '@/schemas/list'; // ✅ Usar tipo correto
-import { ListService } from '@/services/list.service'; // ✅ Importar classe
+import { CreateListSchema_Type } from '@/schemas/list'; 
+import { ListService } from '@/services/list.service'; 
 import { useAuth } from '@/contexts/auth-context';
 import { List } from '@/dto/list';
 
@@ -13,7 +13,7 @@ interface ListContextType {
   error: string | null;
   setCurrentList: (list: List | null) => void;
   refreshLists: () => Promise<void>;
-  createList: (list: ListSchema_Type) => Promise<List>;
+  createList: (list: CreateListSchema_Type) => Promise<List>;
   updateList: (id: number, list: { name?: string }) => Promise<List>;
   deleteList: (id: number) => Promise<void>;
   // duplicateList: (id: number, newName?: string) => Promise<List>;
@@ -64,7 +64,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const createList = async (list: ListSchema_Type) => {
+  const createList = async (list: CreateListSchema_Type) => {
     try {
       console.log('🔄 [ListContext] Creating new list...');
       setError(null);
