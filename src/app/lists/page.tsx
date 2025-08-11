@@ -146,7 +146,7 @@ export default function Workspaces() {
     setIsCreateModalOpen(false);
   };
 
-  const handleCreateSuccess = (newList: any) => {
+  const handleCreateSuccess = () => {
     refreshLists();
   };
 
@@ -246,12 +246,6 @@ export default function Workspaces() {
           </div>
         )}
       </div>
-      {/* create list modal */}
-      <CreateListModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSuccess={handleListCreated}
-      />
     </>
   );
 }

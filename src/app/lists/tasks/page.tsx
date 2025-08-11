@@ -16,6 +16,7 @@ import { useList } from '@/contexts/list-context';
 import { useTasks } from '@/contexts/tasks-context';
 import { useState } from 'react';
 import { Task } from '@/dto/task';
+import CreateTaskModal from '@/components/forms/createTask';
 
 export default function TasksPage() {
   const { currentList } = useList();
@@ -29,8 +30,7 @@ export default function TasksPage() {
     refreshTasks,
   } = useTasks();
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-
-  console.log('currentList value: ', currentList);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
   const handleRetry = () => {
     refreshTasks();
@@ -55,6 +55,18 @@ export default function TasksPage() {
       setCurrentTask(task);
       setIsDetailModalOpen(true);
     }
+  };
+
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSuccess = () => {
+    refreshTasks();
   };
 
   if (error || !currentList) {
@@ -99,7 +111,7 @@ export default function TasksPage() {
       <CreateSec.Root>
         <CreateSec.Container>
           <CreateSec.Label>Create a new Task!</CreateSec.Label>
-          <CreateSec.Button>
+          <CreateSec.Button onClick={handleOpenCreateModal}>
             <span className='font-bold text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl 5xl:text-4xl'>
               Add a Task
             </span>
@@ -108,6 +120,13 @@ export default function TasksPage() {
         </CreateSec.Container>
       </CreateSec.Root>
       {/* END - Create a new section */}
+
+      <CreateTaskModal
+        isOpen={isCreateModalOpen}
+        currentListId={currentList.id}
+        onClose={handleCloseCreateModal}
+        onSuccess={handleCreateSuccess}
+      />
 
       <section className='w-full h-[80%] min-h-[90%] mb-4 border-y-1 border-white'>
         <div className='w-full h-full min-h-full flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6 p-4'>
