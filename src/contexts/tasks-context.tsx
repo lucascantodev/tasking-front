@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { TaskSchema_Type } from '@/schemas/task';
+import { TaskSchema_Type, CreateTaskSchema_Type } from '@/schemas/task';
 import { Priority } from '@/schemas/priority';
 import { Status } from '@/schemas/status';
 import taskService from '@/services/task.service';
@@ -19,13 +19,7 @@ interface TasksContextType {
   getTasksByListId: (listId: number) => Task[];
   setCurrentTask: (task: Task | null) => void;
   refreshTasks: () => Promise<void>;
-  createTask: (task: {
-    name: string;
-    description: string;
-    priority: Priority;
-    status: Status;
-    listId: number;
-  }) => Promise<TaskSchema_Type>;
+  createTask: (task: CreateTaskSchema_Type) => Promise<TaskSchema_Type>;
   updateTaskService: (
     id: number,
     task: { name?: string; completed?: boolean }
@@ -78,13 +72,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   };
 
   // service functions (api calls)
-  const createTask = async (task: {
-    name: string;
-    description: string;
-    priority: Priority;
-    status: Status;
-    listId: number;
-  }) => {
+  const createTask = async (task: CreateTaskSchema_Type) => {
     try {
       setError(null);
       const newTask = await taskService.create(task);
