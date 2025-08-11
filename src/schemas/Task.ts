@@ -4,6 +4,7 @@ import priorityEnum from '@/schemas/priority';
 import statusEnum from '@/schemas/status';
 
 export type TaskSchema_Type = z.infer<typeof taskSchema>;
+export type CreateTaskSchema_Type = z.infer<typeof createTaskSchema>;
 
 const taskSchema = z.object({
   id: z.coerce
@@ -43,4 +44,7 @@ const taskSchema = z.object({
   isComplete: z.boolean().default(false),
 });
 
+const createTaskSchema = taskSchema.omit({ id: true, isComplete: true });
+
+export { createTaskSchema };
 export default taskSchema;
