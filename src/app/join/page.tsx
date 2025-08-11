@@ -1,19 +1,16 @@
 'use client';
 
-import Footer from '@/components/layout/sections/footer/footer';
-import Image from 'next/image';
 import { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Login_Type } from '@/dto/login';
-import signInSchema, { SignISchema_Type } from '@/schemas/signIn';
+import signUpSchema, { SignUpSchema_Type } from '@/schemas/signUp';
+import { FaGoogle } from 'react-icons/fa';
 
-export default function Login() {
+export default function Join() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { join } = useAuth();
   const [error, setError] = useState('');
 
   const {
@@ -21,33 +18,30 @@ export default function Login() {
     register,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<SignISchema_Type>({
-    defaultValues: {
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    },
-    resolver: zodResolver(signInSchema),
+  } = useForm<SignUpSchema_Type>({
+    resolver: zodResolver(signUpSchema),
     mode: 'onChange', // Validates on change for better UX
   });
 
-  const onSubmit = async (data: SignISchema_Type): Promise<void> => {
+  const onSubmit = async (data: SignUpSchema_Type): Promise<void> => {
     setError('');
 
     try {
-      await login({
+      await join({
+        name: data.name,
         email: data.email,
         password: data.password,
       });
 
-      console.log('✅ Login successful!');
+      console.log('✅ Join successful!');
       console.log('⏩Redirecting to lists...');
-      router.push('/lists');
+      setTimeout(() => router.push('/lists'), 1000 * 120);
     } catch (error) {
-      console.error('🚩Login failed!', error);
+      console.error('🚩Join failed!', error);
       setError(
         error instanceof Error
           ? error.message
-          : 'Failed to login. Please try again.'
+          : 'Failed to create account. Please try again.'
       );
     }
   };
@@ -63,7 +57,7 @@ export default function Login() {
         </div>
 
         <div className='text-center mb-8'>
-          <p className='text-zinc-400'>Sign in to your account</p>
+          <p className='text-zinc-400'>Create your account</p>
         </div>
 
         {error && (
@@ -73,6 +67,32 @@ export default function Login() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='space-y-2'>
+            <label htmlFor='name' className='block text-sm font-medium'>
+              Name
+            </label>
+            <input
+              id='name'
+              type='text'
+              {...register('name')}
+              autoComplete='name'
+              className={`
+                appearance-none relative block w-full px-3 py-2 bg-white border 
+                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
+                ${
+                  errors.name
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300'
+                }
+              `}
+              placeholder='Your name'
+            />
+            {errors.name && (
+              <p className='text-red-400 text-sm mt-1'>{errors.name.message}</p>
+            )}
+          </div>
+
           <div className='space-y-2'>
             <label htmlFor='email' className='block text-sm font-medium'>
               Email
@@ -102,19 +122,14 @@ export default function Login() {
           </div>
 
           <div className='space-y-2'>
-            <div className='flex items-center justify-between'>
-              <label htmlFor='password' className='block text-sm font-medium'>
-                Password
-              </label>
-              <a href='#' className='text-sm text-blue-400 hover:text-blue-300'>
-                Forgot password?
-              </a>
-            </div>
+            <label htmlFor='password' className='block text-sm font-medium'>
+              Password
+            </label>
             <input
               id='password'
               type='password'
               {...register('password')}
-              autoComplete='current-password'
+              autoComplete='new-password'
               className={`
                 appearance-none relative block w-full px-3 py-2 bg-white border 
                 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
@@ -134,13 +149,44 @@ export default function Login() {
             )}
           </div>
 
+          <div className='space-y-2'>
+            <label
+              htmlFor='confirmPassword'
+              className='block text-sm font-medium'
+            >
+              Confirm Password
+            </label>
+            <input
+              id='confirmPassword'
+              type='password'
+              {...register('confirmPassword')}
+              autoComplete='new-password'
+              className={`
+                appearance-none relative block w-full px-3 py-2 bg-white border 
+                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
+                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
+                ${
+                  errors.confirmPassword
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300'
+                }
+              `}
+              placeholder='Confirm password'
+            />
+            {errors.confirmPassword && (
+              <p className='text-red-400 text-sm mt-1'>
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
           <div>
             <button
               type='submit'
               disabled={isSubmitting}
               className='w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50'
             >
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
             </button>
           </div>
         </form>
@@ -164,9 +210,9 @@ export default function Login() {
         </div>
 
         <p className='mt-8 text-center text-sm text-zinc-400'>
-          Don't have an account?{' '}
-          <a href='/join' className='link-minimal'>
-            Sign up now
+          Already have an account?{' '}
+          <a href='/' className='link-minimal'>
+            Sign in
           </a>
         </p>
       </div>
