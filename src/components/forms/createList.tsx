@@ -1,13 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconLoader, IconPlus } from '@tabler/icons-react';
+import {
+  IconLoader,
+  IconAlertTriangleFilled,
+  IconTilde,
+  IconCalendarFilled,
+  IconBoltFilled,
+  IconZzz,
+  IconCheckbox,
+} from '@tabler/icons-react';
 import Modal from '@/components/ui/modal';
-import { ListSchema_Type } from '@/schemas/list';
-import listSchema from '@/schemas/list';
-import { ListService } from '@/services/list.service';
+import { CreateListSchema_Type } from '@/schemas/list';
+import { createListSchema } from '@/schemas/list';
+import { useList } from '@/contexts/list-context';
 
 interface CreateListModalProps {
   isOpen: boolean;
@@ -20,15 +27,16 @@ export default function CreateListModal({
   onClose,
   onSuccess,
 }: CreateListModalProps) {
-  const listService = ListService.getInstance();
+  const { createList } = useList();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<ListSchema_Type>({
-    resolver: zodResolver(listSchema),
+    watch,
+  } = useForm<CreateListSchema_Type>({
+    resolver: zodResolver(createListSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -37,15 +45,28 @@ export default function CreateListModal({
     },
   });
 
-  const onSubmit = async (data: ListSchema_Type) => {
+  const onSubmit = async (data: CreateListSchema_Type) => {
     console.log('Data completo:', data);
     try {
-      const newList = await listService.create(data);
+      // We only need to send the fields that are required for creation
+      // The backend will handle assigning id and owner
+      const listData = {
+        name: data.name,
+        description: data.description || '',
+        priority: data.priority,
+        status: data.status,
+      };
+
+      console.log('Submitting list data:', listData);
+      // @ts-ignore - TypeScript will complain about missing id and owner, but the API doesn't need them for creation
+      const newList = await createList(listData);
+      console.log('List created response:', newList);
+
       if (onSuccess) {
         onSuccess(newList);
       }
-      onClose();
       reset();
+      onClose();
       console.log('✅ List created successfully!');
     } catch (error) {
       console.error('🚩 Failed to create list:', error);
@@ -65,12 +86,13 @@ export default function CreateListModal({
       onClose={handleClose}
       title='Create New List'
       size='md'
+      bgColor='black'
     >
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 text-white'>
         <div className='space-y-2'>
           <label
             htmlFor='name'
-            className='block text-sm font-medium text-gray-700'
+            className='block text-sm font-medium text-white'
           >
             List Name *
           </label>
@@ -80,9 +102,10 @@ export default function CreateListModal({
             {...register('name')}
             disabled={isSubmitting}
             className={`
-              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-              ${errors.name ? 'border-red-500' : 'border-gray-300'}
-              ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white
+              bg-black text-white
+              ${errors.name ? 'border-red-500' : 'border-gray-600'}
+              ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
             `}
             placeholder='Enter list name'
           />
@@ -94,7 +117,7 @@ export default function CreateListModal({
         <div className='space-y-2'>
           <label
             htmlFor='description'
-            className='block text-sm font-medium text-gray-700'
+            className='block text-sm font-medium text-white'
           >
             Description
           </label>
@@ -104,9 +127,10 @@ export default function CreateListModal({
             disabled={isSubmitting}
             rows={3}
             className={`
-              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-              ${errors.description ? 'border-red-500' : 'border-gray-300'}
-              ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white
+              bg-black text-white
+              ${errors.description ? 'border-red-500' : 'border-gray-600'}
+              ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
             `}
             placeholder='Optional description'
           />
@@ -116,53 +140,151 @@ export default function CreateListModal({
         </div>
 
         <div className='space-y-2'>
-          <label
-            htmlFor='priority'
-            className='block text-sm font-medium text-gray-700'
-          >
+          <label className='block text-sm font-medium text-white mb-2'>
             Priority
           </label>
-          <select
-            id='priority'
-            {...register('priority')}
-            disabled={isSubmitting}
-            className={`
-              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-              ${errors.priority ? 'border-red-500' : 'border-gray-300'}
-              ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            `}
-          >
-            <option value='low'>Low</option>
-            <option value='medium'>Medium</option>
-            <option value='high'>High</option>
-          </select>
+          <div className='flex flex-wrap space-y-2 items-center justify-between bg-black rounded-md border border-gray-600 p-2'>
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='high'
+                {...register('priority')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.priority ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('priority') === 'high' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('priority') === 'high' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconAlertTriangleFilled
+                  className='text-white mr-1'
+                  size={20}
+                  strokeLinecap='square'
+                  strokeLinejoin='bevel'
+                />
+                <span>High</span>
+              </div>
+            </label>
+
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='medium'
+                {...register('priority')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.priority ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('priority') === 'medium' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('priority') === 'medium' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconTilde className='text-white mr-1' size={20} />
+                <span>Medium</span>
+              </div>
+            </label>
+
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='low'
+                {...register('priority')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.priority ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('priority') === 'low' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('priority') === 'low' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconZzz className='text-white mr-1' size={20} />
+                <span>Low</span>
+              </div>
+            </label>
+          </div>
           {errors.priority && (
             <p className='text-red-500 text-sm'>{errors.priority.message}</p>
           )}
         </div>
 
         <div className='space-y-2'>
-          <label
-            htmlFor='status'
-            className='block text-sm font-medium text-gray-700'
-          >
+          <label className='block text-sm font-medium text-white mb-2'>
             Status
           </label>
-          <select
-            id='status'
-            {...register('status')}
-            disabled={isSubmitting}
-            className={`
-              w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-              ${errors.status ? 'border-red-500' : 'border-gray-300'}
-              ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            `}
-          >
-            <option value='not-started'>Not Started</option>
-            <option value='in-progress'>In Progress</option>
-            <option value='completed'>Completed</option>
-            <option value='waiting'>Waiting</option>
-          </select>
+          <div className='flex flex-wrap space-y-2 items-center justify-between bg-black rounded-md border border-gray-600 p-2'>
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='not-started'
+                {...register('status')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.status ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('status') === 'not-started' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('status') === 'not-started' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconCalendarFilled className='text-white mr-1' size={20} />
+                <span>Not Started</span>
+              </div>
+            </label>
+
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='in-progress'
+                {...register('status')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.status ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('status') === 'in-progress' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('status') === 'in-progress' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconBoltFilled className='text-white mr-1' size={20} />
+                <span>In Progress</span>
+              </div>
+            </label>
+
+            <label className='flex items-center space-x-2 cursor-pointer'>
+              <input
+                type='radio'
+                value='completed'
+                {...register('status')}
+                disabled={isSubmitting}
+                className='hidden'
+              />
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full border ${errors.status ? 'border-red-500' : 'border-white'} ${isSubmitting ? 'opacity-50' : ''} ${watch('status') === 'completed' ? 'bg-white' : 'bg-transparent'}`}
+              >
+                {watch('status') === 'completed' && (
+                  <div className='w-3 h-3 rounded-full bg-black'></div>
+                )}
+              </div>
+              <div className='flex items-center'>
+                <IconCheckbox className='text-white mr-1' size={20} />
+                <span>Completed</span>
+              </div>
+            </label>
+          </div>
           {errors.status && (
             <p className='text-red-500 text-sm'>{errors.status.message}</p>
           )}
@@ -174,19 +296,19 @@ export default function CreateListModal({
             onClick={handleClose}
             disabled={isSubmitting}
             className='
-              flex-1 px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-md
-              hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500
+              flex-1 px-4 py-2 text-white bg-transparent border border-white rounded-md
+              hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-white
               disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
             '
           >
-            Cancel
+            Cancel X
           </button>
           <button
             type='submit'
             disabled={isSubmitting}
             className='
-              flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white bg-blue-600 
-              rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
+              flex-1 flex items-center justify-center gap-2 px-4 py-2 text-black bg-white 
+              rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white
               disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
             '
           >
@@ -196,10 +318,7 @@ export default function CreateListModal({
                 Creating...
               </>
             ) : (
-              <>
-                <IconPlus size={16} />
-                Create List
-              </>
+              <>Save :)</>
             )}
           </button>
         </div>
