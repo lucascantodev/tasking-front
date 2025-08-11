@@ -46,7 +46,12 @@ const listSchema = z
   })
   .passthrough();
 
+// Create a separate schema for list creation that doesn't require id and owner
+const createListSchema = listSchema.omit({ id: true, owner: true });
+
 // type exports
 export type ListSchema_Type = z.infer<typeof listSchema>;
+export type CreateListSchema_Type = z.infer<typeof createListSchema>;
 
+export { createListSchema };
 export default listSchema;
