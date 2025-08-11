@@ -22,7 +22,8 @@ import {
   IconExclamationCircle,
   IconRefresh,
 } from '@tabler/icons-react';
-import { Priority, Status } from '@/dto/list';
+import { List, Priority, Status } from '@/dto/list';
+import CreateTaskModal from '@/components/forms/createTask';
 import { ListSchema_Type } from '@/schemas/list';
 
 export default function Workspaces() {
@@ -33,10 +34,18 @@ export default function Workspaces() {
   });
 
   const router = useRouter();
-  const { lists, isLoading, error, setCurrentList, deleteList, refreshLists } =
-    useList();
+  const {
+    lists,
+    isLoading,
+    error,
+    currentList,
+    setCurrentList,
+    deleteList,
+    refreshLists,
+  } = useList();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
 
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this list?')) {
@@ -54,11 +63,6 @@ export default function Workspaces() {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-  };
-
-  const handleListCreated = (list: ListSchema_Type) => {
-    console.log('List created:', list);
-    refreshLists();
   };
 
   const getPriorityTitle = (priority: Priority) => {
@@ -150,6 +154,19 @@ export default function Workspaces() {
     refreshLists();
   };
 
+  const handleOpenCreateTaskModal = (list: List) => {
+    setIsCreateTaskModalOpen(true);
+    setCurrentList(list);
+  };
+
+  const handleCloseCreateTaskModal = () => {
+    setIsCreateTaskModalOpen(false);
+  };
+
+  const handleCreateTaskSuccess = () => {
+    // don't need to do anything, placewholder func
+  };
+
   return (
     <>
       <div className='container min-w-full w-full m-0 border-0 p-0'>
@@ -164,11 +181,18 @@ export default function Workspaces() {
             </CreateSec.Button>
           </CreateSec.Container>
         </CreateSec.Root>
-        
-        <CreateListModal 
-          isOpen={isCreateModalOpen} 
-          onClose={handleCloseCreateModal} 
+
+        <CreateListModal
+          isOpen={isCreateModalOpen}
+          onClose={handleCloseCreateModal}
           onSuccess={handleCreateSuccess}
+        />
+
+        <CreateTaskModal
+          isOpen={isCreateTaskModalOpen}
+          currentListId={currentList ? currentList.id : 0}
+          onClose={handleCloseCreateTaskModal}
+          onSuccess={handleCreateTaskSuccess}
         />
 
         {lists.length === 0 ? (
@@ -214,7 +238,12 @@ export default function Workspaces() {
                 </LCard.CardInfos>
 
                 <LCard.ButtonsContainer>
-                  <LCard.Button title='add task' onClick={() => {}}>
+                  <LCard.Button
+                    title='add task'
+                    onClick={() => {
+                      handleOpenCreateTaskModal(list);
+                    }}
+                  >
                     <IconPlus color='#FAFAFA' className='size-[1em]' />
                   </LCard.Button>
                   <LCard.Button
