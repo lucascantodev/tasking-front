@@ -9,6 +9,7 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  bgColor?: 'white' | 'black';
 }
 
 export default function Modal({
@@ -17,6 +18,7 @@ export default function Modal({
   title,
   children,
   size = 'md',
+  bgColor = 'white',
 }: ModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -56,19 +58,19 @@ export default function Modal({
       <div className='flex min-h-full items-center justify-center p-4'>
         <div
           className={`
-            relative w-full ${sizeClasses[size]} bg-white rounded-lg shadow-xl
+            relative w-full ${sizeClasses[size]} ${bgColor === 'black' ? 'bg-black' : 'bg-white'} rounded-lg shadow-xl
             transform transition-all duration-300 ease-in-out
           `}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className='flex items-center justify-between p-6 border-b border-gray-200'>
-            <h2 className='text-xl font-semibold text-gray-900'>{title}</h2>
+          <div className={`flex items-center justify-between p-6 border-b ${bgColor === 'black' ? 'border-gray-800' : 'border-gray-200'}`}>
+            <h2 className={`text-xl font-semibold ${bgColor === 'black' ? 'text-white' : 'text-gray-900'}`}>{title}</h2>
             <button
               onClick={onClose}
-              className='
-                p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 
+              className={`
+                p-2 ${bgColor === 'black' ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'} 
                 rounded-full transition-colors duration-200 cursor-pointer
-              '
+              `}
             >
               <IconX size={20} />
             </button>
