@@ -1,6 +1,9 @@
 // src/services/task.service.ts
 import axiosApi from '@/axiosApi';
-import { TaskSchema_Type as Task } from '@/schemas/task';
+import {
+  TaskSchema_Type as Task,
+  CreateTaskSchema_Type as CreateTask,
+} from '@/schemas/task';
 import { Priority } from '@/schemas/priority';
 import { Status } from '@/schemas/status';
 
@@ -97,13 +100,7 @@ export class TaskService {
   }
 
   // create new task
-  public async create(newTask: {
-    name: string;
-    description: string;
-    priority: Priority;
-    status: Status;
-    listId: number;
-  }): Promise<Task> {
+  public async create(newTask: CreateTask): Promise<Task> {
     try {
       console.log('🔄 [TaskService] Starting task creation...');
       console.log('📋 [TaskService] Data to be sent:', newTask);
