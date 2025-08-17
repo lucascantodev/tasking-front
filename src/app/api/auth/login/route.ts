@@ -1,7 +1,7 @@
 // src/app/api/auth/login/route.ts
+import { taskingApiClient } from '@/external/api/tasking';
+import { isAxiosError } from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,66 +14,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // find user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        password: true,
-        createdAt: true,
-      },
-    });
+    let loginResponse: {
+      access: string;
+      refresh: string;
+    };
+    try {
+      const response = await taskingApiClient.post('/api/token', {
+        username: email,
+        password,
+      });
 
-    if (!user) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
+      loginResponse = response.data;
+    } catch (error) {
+      console.error('Error logging in:', error);
+      if (isAxiosError(error)) {
+        switch (error.response?.status) {
+          case 401: {
+            return NextResponse.json(
+              { message: 'Invalid credentials' },
+              { status: 401 }
+            );
+          }
+          default: {
+            return NextResponse.json(
+              { message: 'Internal server error' },
+              { status: 500 }
+            );
+          }
+        }
+      }
+
+      throw error;
     }
-
-    // validate password (in production, use bcrypt)
-    if (user.password !== password) {
-      return NextResponse.json(
-        { message: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    // generate tokens
-    const accessToken = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        userId: user.id,
-        type: 'refresh',
-      },
-      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
 
     // prepare response
     const response = NextResponse.json({
-      user: {
-        id: user.id.toString(),
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.createdAt.toISOString(), // using createdAt as updatedAt for now
-      },
-      accessToken,
+      accessToken: loginResponse.access,
     });
 
     // set refresh token as httpOnly cookie
-    response.cookies.set('refreshToken', refreshToken, {
+    response.cookies.set('refreshToken', loginResponse.refresh, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

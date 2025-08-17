@@ -1,10 +1,5 @@
+import { clearAuthToken, getCurrentToken, setAuthToken } from '@/axiosApi';
 import { UserSchema_Type } from '@/schemas/user';
-import axiosApi, {
-  clearAuthToken,
-  getCurrentToken,
-  setAuthToken,
-} from '@/axiosApi';
-import axios from 'axios';
 
 interface LoginResponse {
   user: UserSchema_Type;
@@ -42,12 +37,9 @@ class AuthService {
 
       setAuthToken(data.accessToken);
 
-      const user = data.user;
-
       console.log(
         `✅ Login successful, token stored in memory: \n ${data.accessToken}`
       );
-      console.log('User data:', data.user);
 
       return data;
     } catch (error) {
