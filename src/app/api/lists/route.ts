@@ -1,6 +1,6 @@
+import { taskingApiClient } from '@/external/api/tasking';
+import { isAxiosError } from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,32 +21,38 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const token = authorization.split(' ')[1];
-    console.log('🔍 [API] Token extracted:', token.substring(0, 20) + '...');
+    let listListsResponse: Array<{
+      id: number;
+      name: string;
+      description: string | null;
+      priority: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+    }>;
+    try {
+      const response = await taskingApiClient.get('/lists', {
+        headers: {
+          Authorization: authorization,
+        },
+      });
 
-    // verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: number;
-    };
-    console.log('✅ [API] Token verified for user:', decoded.userId);
+      listListsResponse = response.data;
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      if (isAxiosError(error)) {
+        console.error('Response data', error.response?.data);
+      }
 
-    // fetch user's lists
-    console.log('🔄 [API] Fetching lists from database...');
-    const lists = await prisma.list.findMany({
-      where: {
-        owner: decoded.userId,
-      },
-      orderBy: {
-        priority: 'asc',
-      },
-    });
+      throw error;
+    }
 
     console.log(
       '✅ [API] Lists fetched successfully:',
-      lists.length,
+      listListsResponse.length,
       'lists found'
     );
-    return NextResponse.json(lists);
+    return NextResponse.json(listListsResponse);
   } catch (error: any) {
     console.error('🚩 [API] Error fetching lists:', error);
     console.error('🚩 [API] Error details:', {
@@ -78,21 +84,6 @@ export async function POST(request: NextRequest) {
         { message: 'Authorization token required' },
         { status: 401 }
       );
-    }
-
-    const token = authorization.split(' ')[1];
-    console.log('🔍 [API] Token extracted:', token.substring(0, 20) + '...');
-
-    // verify token
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-        userId: number;
-      };
-      console.log('✅ [API] Token verified for user:', decoded.userId);
-    } catch (jwtError: any) {
-      console.error('🚩 [API] JWT verification failed:', jwtError.message);
-      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
     }
 
     // parse request body
@@ -128,7 +119,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // prepare data for database
+    // prepare data for external api request
     const listData = {
       name: name.trim(),
       description:
@@ -137,35 +128,37 @@ export async function POST(request: NextRequest) {
           : '',
       priority: priority || 'medium',
       status: status || 'not-started',
-      owner: decoded.userId,
     };
 
-    console.log('📋 [API] Data prepared for database:', listData);
+    console.log('📋 [API] Data prepared for external api request:', listData);
 
-    // create new list
+    let createListResponse: {
+      id: number;
+      name: string;
+      description: string | null;
+      priority: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+    };
     try {
-      console.log('🔄 [API] Creating list in database...');
-      const newList = await prisma.list.create({
-        data: listData,
+      const response = await taskingApiClient.post('/lists', listData, {
+        headers: {
+          Authorization: authorization,
+        },
       });
 
-      console.log('✅ [API] List created successfully!');
-      console.log('📨 [API] Created list:', newList);
+      createListResponse = response.data;
+    } catch (error) {
+      console.error('Error creating list:', error);
+      if (isAxiosError(error)) {
+        console.error('Response data', error.response?.data);
+      }
 
-      return NextResponse.json(newList, { status: 201 });
-    } catch (dbError: any) {
-      console.error('🚩 [API] Database error:', dbError);
-      console.error('🚩 [API] Database error details:', {
-        message: dbError.message,
-        code: dbError.code,
-        meta: dbError.meta,
-      });
-
-      return NextResponse.json(
-        { message: 'Database error occurred' },
-        { status: 500 }
-      );
+      throw error;
     }
+
+    return NextResponse.json(createListResponse, { status: 201 });
   } catch (error: any) {
     console.error('🚩 [API] Unexpected error creating list:', error);
     console.error('🚩 [API] Error details:', {

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
+import { taskingApiClient } from '@/external/api/tasking';
 import priorityEnum, { Priority } from '@/schemas/priority';
 import statusEnum, { Status } from '@/schemas/status';
+import { isAxiosError } from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
   request: NextRequest,
@@ -24,21 +24,6 @@ export async function PUT(
         { message: 'Authorization token required' },
         { status: 401 }
       );
-    }
-
-    const token = authorization.split(' ')[1];
-    console.log('🔍 [API] Token extracted:', token.substring(0, 20) + '...');
-
-    // Verify token
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-        userId: number;
-      };
-      console.log('✅ [API] Token verified for user:', decoded.userId);
-    } catch (jwtError: any) {
-      console.error('🚩 [API] JWT verification failed:', jwtError.message);
-      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
     }
 
     // Validate listId para
@@ -125,35 +110,105 @@ export async function PUT(
       );
     }
 
-    console.log('📋 [API] Data prepared for database:', listData);
+    console.log('📋 [API] Data prepared for external api request:', listData);
 
-    // create new list
+    let updateListResponse: {
+      id: number;
+      name: string;
+      description: string | null;
+      priority: string;
+      status: string;
+      created_at: string;
+      updated_at: string;
+    };
     try {
-      console.log('🔄 [API] Creating list in database...');
-      const newList = await prisma.list.update({
-        data: listData,
-        where: {
-          id: listId,
-        },
-      });
+      const response = await taskingApiClient.put(
+        `/lists/${listId}`,
+        listData,
+        {
+          headers: {
+            Authorization: authorization,
+          },
+        }
+      );
 
-      console.log('✅ [API] List updated successfully!');
-      console.log('📨 [API] Updated list:', newList);
+      updateListResponse = response.data;
+    } catch (error) {
+      console.error('Error updating list:', error);
+      if (isAxiosError(error)) {
+        console.error('Response data', error.response?.data);
+      }
 
-      return NextResponse.json(newList, { status: 200 });
-    } catch (dbError: any) {
-      console.error('🚩 [API] Database error:', dbError);
-      console.error('🚩 [API] Database error details:', {
-        message: dbError.message,
-        code: dbError.code,
-        meta: dbError.meta,
-      });
+      throw error;
+    }
 
+    return NextResponse.json(updateListResponse, { status: 201 });
+  } catch (error: any) {
+    console.error('🚩 [API] Unexpected error updating list:', error);
+    console.error('🚩 [API] Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    });
+
+    return NextResponse.json(
+      { message: 'Failed to update list' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { listId: string } }
+) {
+  try {
+    console.log('🔄 [API] DELETE /lists/[listId] - Starting request...');
+
+    // get token from authorization header
+    const authorization = request.headers.get('Authorization');
+    console.log(
+      '🔍 [API] Authorization header:',
+      authorization ? 'Present' : 'Missing'
+    );
+
+    if (!authorization || !authorization.startsWith('Bearer')) {
+      console.error('🚩 [API] Missing or invalid authorization header');
       return NextResponse.json(
-        { message: 'Database error occurred' },
-        { status: 500 }
+        { message: 'Authorization token required' },
+        { status: 401 }
       );
     }
+
+    // Validate listId para
+    const listId = Number(params.listId);
+    console.log(`🔍 [API] From url path got this listId: ${listId}`);
+    if (!listId || typeof listId !== 'number' || listId <= 0) {
+      console.error(
+        '🚩 [API] Validation failed: listId param in url path is missing or wrong'
+      );
+      return NextResponse.json(
+        { message: 'List listId param in url path is missing or wrong' },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await taskingApiClient.delete(`/lists/${listId}`, {
+        headers: {
+          Authorization: authorization,
+        },
+      });
+    } catch (error) {
+      console.error('Error updating list:', error);
+      if (isAxiosError(error)) {
+        console.error('Response data', error.response?.data);
+      }
+
+      throw error;
+    }
+
+    return NextResponse.json(null, { status: 204 });
   } catch (error: any) {
     console.error('🚩 [API] Unexpected error updating list:', error);
     console.error('🚩 [API] Error details:', {
