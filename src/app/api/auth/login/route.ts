@@ -47,9 +47,51 @@ export async function POST(request: NextRequest) {
       throw error;
     }
 
+    let findMeResponse: {
+      id: number;
+      first_name: string;
+      email: string;
+      date_joined: string;
+    };
+    try {
+      const response = await taskingApiClient.get('/users/me', {
+        headers: {
+          Authorization: `Bearer ${loginResponse.access}`,
+        },
+      });
+
+      findMeResponse = response.data;
+    } catch (error) {
+      console.error('Error registering user:', error);
+      if (isAxiosError(error)) {
+        switch (error.response?.status) {
+          case 404: {
+            return NextResponse.json(
+              { message: 'User not found' },
+              { status: 404 }
+            );
+          }
+          default: {
+            return NextResponse.json(
+              { message: 'Internal server error' },
+              { status: 500 }
+            );
+          }
+        }
+      }
+
+      throw error;
+    }
+
     // prepare response
     const response = NextResponse.json({
       accessToken: loginResponse.access,
+      user: {
+        id: findMeResponse.id,
+        name: findMeResponse.first_name,
+        email: findMeResponse.email,
+        createdAt: findMeResponse.date_joined,
+      },
     });
 
     // set refresh token as httpOnly cookie
