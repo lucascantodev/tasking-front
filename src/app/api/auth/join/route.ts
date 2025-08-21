@@ -1,7 +1,7 @@
 // src/app/api/auth/login/route.ts
+import { taskingApiClient } from '@/external/api/tasking';
+import { isAxiosError } from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,64 +41,91 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verifying if already exist a user with that email
-    const prevUser = await prisma.user.findUnique({
-      where: { email: email.trim() },
-    });
+    let registerResponse: {
+      id: number;
+      first_name: string;
+      email: string;
+      date_joined: string;
+    };
+    try {
+      const response = await taskingApiClient.post('/api/register', {
+        first_name: name,
+        email,
+        password,
+      });
 
-    if (prevUser) {
-      console.error(
-        '🚩 [API] User with informed email already exists, email: ',
-        email.trim()
-      );
-      return NextResponse.json(
-        {
-          message:
-            'User with informed email already exists, email: ' + email.trim(),
-        },
-        { status: 409 }
-      );
+      registerResponse = response.data;
+    } catch (error) {
+      console.error('Error registering user:', error);
+      if (isAxiosError(error)) {
+        switch (error.response?.status) {
+          case 400: {
+            return NextResponse.json(
+              { message: 'User already exists' },
+              { status: 400 }
+            );
+          }
+          default: {
+            return NextResponse.json(
+              { message: 'Internal server error' },
+              { status: 500 }
+            );
+          }
+        }
+      }
+
+      throw error;
     }
 
-    // create user
-    const user = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: email.trim(),
-        password: password.trim(),
-      },
-    });
+    let loginResponse: {
+      access: string;
+      refresh: string;
+    };
+    try {
+      const response = await taskingApiClient.post('/api/token', {
+        username: email,
+        password,
+      });
 
-    // generate tokens
-    const accessToken = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
-    );
+      loginResponse = response.data;
+    } catch (error) {
+      console.error('Error logging in:', error);
+      if (isAxiosError(error)) {
+        switch (error.response?.status) {
+          case 401: {
+            return NextResponse.json(
+              { message: 'Invalid credentials' },
+              { status: 401 }
+            );
+          }
+          default: {
+            return NextResponse.json(
+              { message: 'Internal server error' },
+              { status: 500 }
+            );
+          }
+        }
+      }
 
-    const refreshToken = jwt.sign(
-      {
-        userId: user.id,
-        type: 'refresh',
-      },
-      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
+      throw error;
+    }
 
     // prepare response
     const response = NextResponse.json(
       {
-        user: { ...user, updatedAt: user.createdAt.toISOString() },
-        accessToken,
+        user: {
+          id: registerResponse.id,
+          email: registerResponse.email,
+          name: registerResponse.first_name,
+          createdAt: registerResponse.date_joined,
+        },
+        accessToken: loginResponse.access,
       },
       { status: 201 }
     );
 
     // set refresh token as httpOnly cookie
-    response.cookies.set('refreshToken', refreshToken, {
+    response.cookies.set('refreshToken', loginResponse.refresh, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
