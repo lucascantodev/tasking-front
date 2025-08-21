@@ -208,7 +208,7 @@ export async function DELETE(
       throw error;
     }
 
-    return NextResponse.json(null, { status: 204 });
+    return NextResponse.json(null, { status: 200 });
   } catch (error: any) {
     console.error('🚩 [API] Unexpected error updating list:', error);
     console.error('🚩 [API] Error details:', {
