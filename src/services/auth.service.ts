@@ -3,17 +3,20 @@ import axiosApi, {
   clearAuthToken,
   getCurrentToken,
   setAuthToken,
+  getRefreshToken,
 } from '@/axiosApi';
-import axios from 'axios';
+
 
 interface LoginResponse {
   user: UserSchema_Type;
-  accessToken: string;
+  access: string;
+  refresh: string;
 }
 
 interface JoinResponse {
   user: UserSchema_Type;
-  accessToken: string;
+  access: string;
+  refresh: string;
 }
 
 class AuthService {
@@ -24,13 +27,15 @@ class AuthService {
     password: string;
   }): Promise<LoginResponse> {
     try {
-      const response = await fetch(`${this.API_URL}auth/login`, {
+      const { email, password } = credentials;
+
+      const response = await fetch(`${this.API_URL}token/`, {
         method: 'POST',
         credentials: 'include', // includes HttpOnly cookies
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({ "username": email, "password": password }),
       });
 
       if (!response.ok) {
@@ -40,12 +45,10 @@ class AuthService {
 
       const data: LoginResponse = await response.json();
 
-      setAuthToken(data.accessToken);
-
-      const user = data.user;
+      setAuthToken(data.access, data.refresh);
 
       console.log(
-        `✅ Login successful, token stored in memory: \n ${data.accessToken}`
+        `✅ Login successful, token stored in memory: \n ${data.access}`
       );
       console.log('User data:', data.user);
 
@@ -62,13 +65,17 @@ class AuthService {
     password: string;
   }): Promise<JoinResponse> {
     try {
-      const response = await fetch(`${this.API_URL}auth/join`, {
+      // Replace name with username that should be the same as email. 
+      // example: name: dot@gmail.com, username: dot@gmail.com, email: dot@gmail.com
+      const { email: username, email, password } = userData;
+
+      const response = await fetch(`${this.API_URL}register/`, {
         method: 'POST',
         credentials: 'include', // includes HttpOnly cookies (not needed, but leave it there)
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ username, email, password }),
       });
 
       if (!response.ok) {
@@ -78,12 +85,10 @@ class AuthService {
 
       const data: JoinResponse = await response.json();
 
-      setAuthToken(data.accessToken);
-
-      const user = data.user;
+      setAuthToken(data.access, data.refresh);
 
       console.log(
-        `✅ [AuthService] Join successful, token stored in memory: \n ${data.accessToken}`
+        `✅ [AuthService] Join successful, token stored in memory: \n ${data.access}`
       );
       console.log('User data:', data.user);
 
@@ -106,6 +111,7 @@ class AuthService {
 
   async validateToken(): Promise<UserSchema_Type | null> {
     try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/`;
       const token = getCurrentToken();
 
       if (!token) {
@@ -113,7 +119,7 @@ class AuthService {
         return null;
       }
 
-      const response = await fetch(`${this.API_URL}/auth/me`, {
+      const response = await fetch(`${apiUrl}users/me/`, {
         method: 'GET',
         credentials: 'include', // includes HttpOnly cookies
         headers: {
@@ -141,7 +147,14 @@ class AuthService {
   // method to manually refresh the token (if needed)
   async refreshToken(): Promise<string | null> {
     try {
-      const response = await fetch(`${this.API_URL}/auth/refresh`, {
+      const refreshToken = getRefreshToken();
+
+      if (!refreshToken) {
+        console.error('🚩 No refresh token available for refresh');
+        return null;
+      }
+
+      const response = await fetch(`${this.API_URL}token/refresh/`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -156,7 +169,7 @@ class AuthService {
       const data = await response.json();
 
       // update the token in memory
-      setAuthToken(data.accessToken);
+      setAuthToken(data.accessToken, refreshToken);
 
       return data.accessToken;
     } catch (error) {

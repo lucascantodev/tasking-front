@@ -22,7 +22,14 @@ interface TasksContextType {
   createTask: (task: CreateTaskSchema_Type) => Promise<TaskSchema_Type>;
   updateTaskService: (
     id: number,
-    task: { name?: string; completed?: boolean }
+    listId: number,
+    task: { 
+      name?: string; 
+      description?: string; 
+      priority?: Priority; 
+      status?: Status; 
+      isComplete?: boolean 
+    }
   ) => Promise<TaskSchema_Type>;
   deleteTaskService: (id: number) => Promise<void>;
 }
@@ -47,6 +54,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       setError(null);
       const loadedTasks = await taskService.getAll();
+      console.log("[TasksContext] Loaded tasks: ", loadedTasks);
       setTasks(loadedTasks);
     } catch (error) {
       setError('❌ Failed to load tasks');
@@ -87,11 +95,18 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
 
   const updateTaskService = async (
     id: number,
-    task: { name?: string; completed?: boolean }
+    listId: number,
+    task: { 
+      name?: string; 
+      description?: string; 
+      priority?: Priority; 
+      status?: Status; 
+      isComplete?: boolean 
+    }
   ) => {
     try {
       setError(null);
-      const updatedTask = await taskService.update(id, task);
+      const updatedTask = await taskService.update(id, listId, task);
       setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
       return updatedTask;
     } catch (err) {

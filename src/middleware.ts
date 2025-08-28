@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('refreshToken');
+  const cookie = request.cookies.get('refreshToken');
+  const token = cookie?.value;
+
   const isAuthPage =
     request.nextUrl.pathname === '/' || request.nextUrl.pathname === '/join';
 

@@ -35,7 +35,7 @@ export default function Join() {
 
       console.log('✅ Join successful!');
       console.log('⏩Redirecting to lists...');
-      setTimeout(() => router.push('/lists'), 1000 * 120);
+      router.push('/lists');
     } catch (error) {
       console.error('🚩Join failed!', error);
       setError(

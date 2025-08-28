@@ -2,6 +2,7 @@ import axios from 'axios';
 
 class SecureTokenManager {
   private accessToken: string | null = null;
+  private refreshToken: string | null = null;
   private refreshPromise: Promise<string | null> | null = null;
 
   setAccessToken(token: string) {
@@ -14,7 +15,16 @@ class SecureTokenManager {
 
   clearAccessToken() {
     this.accessToken = null;
+    this.refreshToken = null;
     this.refreshPromise = null;
+  }
+
+  setRefreshToken(token: string) {
+    this.refreshToken = token;
+  }
+
+  getRefreshToken(): string | null {
+    return this.refreshToken;
   }
 
   // refresh with single promise (prevents multiple simultaneous calls)
@@ -40,21 +50,22 @@ class SecureTokenManager {
   private async performRefresh(): Promise<string | null> {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/refresh`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/token/refresh/`,
         {
           method: 'POST',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ refresh: this.refreshToken })
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        this.setAccessToken(data.accessToken);
+        this.setAccessToken(data.access);
         console.log('✅ Token refreshed successfully');
-        return data.accessToken;
+        return data.access;
       }
 
       console.log('❌ Refresh failed - invalid refresh token');
@@ -159,8 +170,9 @@ axiosApi.interceptors.response.use(
 );
 
 // utility functions
-export const setAuthToken = (accessToken: string) => {
+export const setAuthToken = (accessToken: string, refreshToken: string) => {
   tokenManager.setAccessToken(accessToken);
+  tokenManager.setRefreshToken(refreshToken);
 };
 
 export const clearAuthToken = async () => {
@@ -168,7 +180,7 @@ export const clearAuthToken = async () => {
     tokenManager.clearAccessToken();
 
     await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/logout`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/token/logout/`,
       {
         method: 'POST',
         credentials: 'include',
@@ -185,6 +197,10 @@ export const isAuthenticated = (): boolean => {
 
 export const getCurrentToken = (): string | null => {
   return tokenManager.getAccessToken();
+};
+
+export const getRefreshToken = (): string | null => {
+  return tokenManager.getRefreshToken();
 };
 
 export default axiosApi;

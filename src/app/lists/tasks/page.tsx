@@ -14,7 +14,7 @@ import { TaskStatus } from '@/components/badges/taskStatus';
 import { BottomUpModal } from '@/components/modals/bottomUpModal';
 import { useList } from '@/contexts/list-context';
 import { useTasks } from '@/contexts/tasks-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task } from '@/dto/task';
 import CreateTaskModal from '@/components/forms/createTask';
 

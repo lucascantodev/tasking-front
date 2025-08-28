@@ -1,11 +1,12 @@
 // src/services/task.service.ts
 import axiosApi from '@/axiosApi';
+import { Priority } from '@/schemas/priority';
+import { Status } from '@/schemas/status';
+import listService from '@/services/list.service';
 import {
   TaskSchema_Type as Task,
   CreateTaskSchema_Type as CreateTask,
 } from '@/schemas/task';
-import { Priority } from '@/schemas/priority';
-import { Status } from '@/schemas/status';
 
 export class TaskService {
   private static instance: TaskService;
@@ -25,15 +26,23 @@ export class TaskService {
       console.log('🔄 [TaskService] Fetching all tasks...');
 
       console.log('📤 [TaskService] Making GET request to /tasks');
-      const response = await axiosApi.get<Task[]>('/tasks');
+      const lists = await listService.getAll();
+      const listIds = lists.map((list) => list.id);
+
+      const tasks: Task[] = []
+      for (const listId of listIds) {
+        const response = await axiosApi.get<Task[]>(`/lists/${listId}/tasks/`);
+        tasks.push(...response.data);
+      }
 
       console.log(
         '✅ [TaskService] Tasks fetched successfully:',
-        response.data.length,
+        tasks.length,
         'tasks'
       );
-      console.log('📋 [TaskService] Response data:', response.data);
-      return response.data;
+      console.log('📋 [TaskService] Response data:', tasks);
+
+      return tasks;
     } catch (error: any) {
       console.error('🚩 [TaskService] Error fetching all tasks:', error);
 
@@ -53,9 +62,9 @@ export class TaskService {
   }
 
   // get task by id
-  public async getById(id: number): Promise<Task | null> {
+  public async getById(id: number, listId: number): Promise<Task | null> {
     try {
-      const response = await axiosApi.get<Task>(`/tasks/${id}`);
+      const response = await axiosApi.get<Task>(`/lists/${listId}/tasks/${id}/`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -72,7 +81,7 @@ export class TaskService {
       console.log('🔄 [TaskService] Fetching tasks by listId...');
 
       console.log('📤 [TaskService] Making GET request to /tasks');
-      const response = await axiosApi.get<Task[]>(`/tasks/listId=${listId}`);
+      const response = await axiosApi.get<Task[]>(`/lists/${listId}/tasks/`);
 
       console.log(
         '✅ [TaskService] Tasks fetched successfully:',
@@ -125,7 +134,7 @@ export class TaskService {
         data: newTask,
       });
 
-      const response = await axiosApi.post<Task>('/tasks', newTask);
+      const response = await axiosApi.post<Task>(`lists/${newTask.listId}/tasks/`, newTask);
 
       console.log('✅ [TaskService] Task created successfully!');
       console.log('📨 [TaskService] Response status:', response.status);
@@ -185,7 +194,14 @@ export class TaskService {
   // update task
   public async update(
     id: number,
-    updatedTask: { name?: string; isComplete?: boolean }
+    listId: number,
+    updatedTask: { 
+      name?: string; 
+      description?: string; 
+      priority?: Priority; 
+      status?: Status; 
+      isComplete?: boolean 
+    }
   ): Promise<Task> {
     try {
       // validate data if provided
@@ -193,7 +209,7 @@ export class TaskService {
         this.validateTask(updatedTask);
       }
 
-      const response = await axiosApi.put<Task>(`/tasks/${id}`, updatedTask);
+      const response = await axiosApi.put<Task>(`/lists/${listId}/tasks/${id}/`, updatedTask);
       return response.data;
     } catch (error: any) {
       console.error(`❌ Error updating task ${id}:`, error);
@@ -226,15 +242,16 @@ export class TaskService {
   }
 
   // toggle task completion
-  public async toggleComplete(id: number): Promise<Task> {
+  public async toggleComplete(id: number, listId: number): Promise<Task> {
     try {
-      const task = await this.getById(id);
+      const task = await this.getById(id, listId);
 
       if (!task) {
         throw new Error('❌ Task not found');
       }
 
-      return await this.update(id, { isComplete: !task.isComplete });
+      const { id: taskId, listId: taskListId, ...trimmedTask } = task;
+      return await this.update(id, listId, { ...trimmedTask, isComplete: !task.isComplete });
     } catch (error) {
       console.error(`❌ Error toggling task ${id}:`, error);
       throw new Error('❌ Failed to toggle task');
@@ -242,9 +259,9 @@ export class TaskService {
   }
 
   // duplicate task
-  public async duplicate(id: number, newName?: string): Promise<Task> {
+  public async duplicate(id: number, listId: number, newName?: string): Promise<Task> {
     try {
-      const originalTask = await this.getById(id);
+      const originalTask = await this.getById(id, listId);
 
       if (!originalTask) {
         throw new Error('❌ Task not found');

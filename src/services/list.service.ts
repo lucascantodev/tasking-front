@@ -29,7 +29,7 @@ export class ListService {
       }); */
 
       console.log('📤 [ListService] Making GET request to /lists');
-      const response = await axiosApi.get<List[]>('/lists');
+      const response = await axiosApi.get<List[]>('/lists/');
 
       console.log(
         '✅ [ListService] Lists fetched successfully:',
@@ -60,7 +60,7 @@ export class ListService {
   public async getById(id: number): Promise<List | null> {
     try {
       console.log(`🔄 [ListService] Fetching list with id: ${id}`);
-      const response = await axiosApi.get<List>(`/lists/${id}`);
+      const response = await axiosApi.get<List>(`/lists/${id}/`);
       console.log('✅ [ListService] List fetched successfully:', response.data);
       return response.data;
     } catch (error: any) {
@@ -99,7 +99,7 @@ export class ListService {
         data: newList,
       });
 
-      const response = await axiosApi.post<List>('/lists', newList);
+      const response = await axiosApi.post<List>('/lists/', newList);
 
       console.log('✅ [ListService] List created successfully!');
       console.log('📨 [ListService] Response status:', response.status);
@@ -170,7 +170,7 @@ export class ListService {
       console.log(`🔄 [ListService] Updating list ${id}...`);
       console.log('📋 [ListService] Update data:', updatedList);
 
-      const response = await axiosApi.put<List>(`/lists/${id}`, updatedList);
+      const response = await axiosApi.put<List>(`/lists/${id}/`, updatedList);
 
       console.log('✅ [ListService] List updated successfully:', response.data);
       return response.data;
@@ -198,7 +198,7 @@ export class ListService {
   public async delete(id: number): Promise<void> {
     try {
       console.log(`🔄 [ListService] Deleting list ${id}...`);
-      await axiosApi.delete(`/lists/${id}`);
+      await axiosApi.delete(`/lists/${id}/`);
       console.log(`✅ [ListService] List ${id} deleted successfully`);
     } catch (error: any) {
       console.error(`🚩 [ListService] Error deleting list ${id}:`, error);
