@@ -57,7 +57,6 @@ class SecureTokenManager {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ refresh: this.refreshToken })
         }
       );
 
@@ -170,6 +169,10 @@ axiosApi.interceptors.response.use(
 );
 
 // utility functions
+export const setAccessToken = (accessToken: string) => {
+  tokenManager.setAccessToken(accessToken);
+};
+
 export const setAuthToken = (accessToken: string, refreshToken: string) => {
   tokenManager.setAccessToken(accessToken);
   tokenManager.setRefreshToken(refreshToken);

@@ -1,10 +1,10 @@
-import { UserSchema_Type } from '@/schemas/user';
-import axiosApi, {
+import {
   clearAuthToken,
   getCurrentToken,
+  setAccessToken,
   setAuthToken,
-  getRefreshToken,
 } from '@/axiosApi';
+import { UserSchema_Type } from '@/schemas/user';
 
 
 interface LoginResponse {
@@ -112,11 +112,19 @@ class AuthService {
   async validateToken(): Promise<UserSchema_Type | null> {
     try {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/`;
-      const token = getCurrentToken();
+      let token = getCurrentToken();
 
       if (!token) {
-        console.log('🚩 No token available for validation');
-        return null;
+        console.log('🚩 No token available for validation, trying to refresh');
+
+        const newAccessToken = await this.refreshToken();
+
+        if (!newAccessToken) {
+          console.log('🚩 Token refresh failed');
+          return null;
+        }
+
+        token = newAccessToken;
       }
 
       const response = await fetch(`${apiUrl}users/me/`, {
@@ -147,13 +155,6 @@ class AuthService {
   // method to manually refresh the token (if needed)
   async refreshToken(): Promise<string | null> {
     try {
-      const refreshToken = getRefreshToken();
-
-      if (!refreshToken) {
-        console.error('🚩 No refresh token available for refresh');
-        return null;
-      }
-
       const response = await fetch(`${this.API_URL}token/refresh/`, {
         method: 'POST',
         credentials: 'include',
@@ -169,9 +170,9 @@ class AuthService {
       const data = await response.json();
 
       // update the token in memory
-      setAuthToken(data.accessToken, refreshToken);
+      setAccessToken(data.access);
 
-      return data.accessToken;
+      return data.access;
     } catch (error) {
       console.error('🚩 Manual refresh failed:', error);
       return null;
