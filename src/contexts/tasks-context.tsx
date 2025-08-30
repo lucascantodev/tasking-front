@@ -7,6 +7,7 @@ import { Status } from '@/schemas/status';
 import taskService from '@/services/task.service';
 import { useAuth } from '@/contexts/auth-context';
 import { Task } from '@/dto/task';
+import { TaskUpdate } from '@/dto/taskUpdate';
 
 interface TasksContextType {
   tasks: Task[];
@@ -23,15 +24,10 @@ interface TasksContextType {
   updateTaskService: (
     id: number,
     listId: number,
-    task: { 
-      name?: string; 
-      description?: string; 
-      priority?: Priority; 
-      status?: Status; 
-      isComplete?: boolean 
-    }
+    task: TaskUpdate & { isComplete?: boolean }
   ) => Promise<TaskSchema_Type>;
-  deleteTaskService: (id: number) => Promise<void>;
+  deleteTaskService: (id: number, listId: number) => Promise<void>;
+  toggleComplete: (id: number, listId: number) => Promise<TaskSchema_Type>;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -54,7 +50,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       setError(null);
       const loadedTasks = await taskService.getAll();
-      console.log("[TasksContext] Loaded tasks: ", loadedTasks);
+      console.log('[TasksContext] Loaded tasks: ', loadedTasks);
       setTasks(loadedTasks);
     } catch (error) {
       setError('❌ Failed to load tasks');
@@ -96,13 +92,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   const updateTaskService = async (
     id: number,
     listId: number,
-    task: { 
-      name?: string; 
-      description?: string; 
-      priority?: Priority; 
-      status?: Status; 
-      isComplete?: boolean 
-    }
+    task: TaskUpdate & { isComplete?: boolean }
   ) => {
     try {
       setError(null);
@@ -116,14 +106,27 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const deleteTaskService = async (id: number) => {
+  const deleteTaskService = async (id: number, listId: number) => {
     try {
       setError(null);
-      await taskService.delete(id);
+      await taskService.delete(id, listId);
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       setError('❌ Failed to delete task');
       console.error('❌ Error deleting task:', err);
+      throw err;
+    }
+  };
+
+  const toggleComplete = async (id: number, listId: number) => {
+    try {
+      setError(null);
+      const updatedTask = await taskService.toggleComplete(id, listId);
+      setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
+      return updatedTask;
+    } catch (err) {
+      setError('❌ Failed to check task');
+      console.error('❌ Error checking task:', err);
       throw err;
     }
   };
@@ -154,6 +157,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     createTask,
     updateTaskService,
     deleteTaskService,
+    toggleComplete,
   };
 
   return (

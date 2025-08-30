@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -21,6 +22,11 @@ interface CreateTaskModalProps {
   currentListId: number;
   onClose: () => void;
   onSuccess?: (newTask: any) => void;
+  initialData?: Partial<CreateTaskSchema_Type> & {
+    id?: number;
+    isComplete?: boolean;
+  };
+  isEdit?: boolean;
 }
 
 export default function CreateTaskModal({
@@ -28,8 +34,10 @@ export default function CreateTaskModal({
   currentListId,
   onClose,
   onSuccess,
+  initialData,
+  isEdit = false,
 }: CreateTaskModalProps) {
-  const { createTask } = useTasks();
+  const { createTask, updateTaskService } = useTasks();
 
   const {
     register,
@@ -37,42 +45,59 @@ export default function CreateTaskModal({
     formState: { errors, isSubmitting },
     reset,
     watch,
+    setValue,
   } = useForm<CreateTaskSchema_Type>({
     resolver: zodResolver(createTaskSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       name: '',
       description: '',
       priority: 'low',
       status: 'not-started',
+      listId: currentListId,
     },
   });
 
+  useEffect(() => {
+    if (initialData) {
+      Object.entries(initialData).forEach(([key, value]) => {
+        setValue(key as keyof CreateTaskSchema_Type, value as any);
+      });
+    } else {
+      setValue('listId', currentListId);
+    }
+  }, [initialData, setValue, currentListId]);
+
   const onSubmit = async (data: CreateTaskSchema_Type) => {
-    console.log('Data completo:', data);
     try {
-      // We only need to send the fields that are required for creation
-      // The backend will handle assigning id and owner
-      const taskData = {
-        name: data.name,
-        description: data.description || '',
-        priority: data.priority,
-        status: data.status,
-        listId: data.listId,
-      };
-
-      console.log('Submitting Task data:', taskData);
-      // @ts-ignore - TypeScript will complain about missing id and owner, but the API doesn't need them for creation
-      const newTask = await createTask(taskData);
-      console.log('Task created response:', newTask);
-
-      if (onSuccess) {
-        onSuccess(newTask);
+      if (isEdit && initialData?.id) {
+        const updateData = {
+          name: data.name,
+          description: data.description,
+          priority: data.priority,
+          status: data.status,
+        };
+        const updated = await updateTaskService(
+          initialData.id,
+          data.listId,
+          updateData
+        );
+        if (onSuccess) onSuccess(updated);
+      } else {
+        const taskData = {
+          name: data.name,
+          description: data.description || '',
+          priority: data.priority,
+          status: data.status,
+          listId: data.listId,
+        };
+        // @ts-ignore
+        const newTask = await createTask(taskData);
+        if (onSuccess) onSuccess(newTask);
       }
       reset();
       onClose();
-      console.log('✅ Task created successfully!');
     } catch (error) {
-      console.error('🚩 Failed to create task:', error);
+      console.error('🚩 Failed to submit task:', error);
     }
   };
 

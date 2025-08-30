@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -20,14 +21,18 @@ interface CreateListModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: (newList: any) => void;
+  initialData?: Partial<CreateListSchema_Type> & { id?: number };
+  isEdit?: boolean;
 }
 
 export default function CreateListModal({
   isOpen,
   onClose,
   onSuccess,
+  initialData,
+  isEdit = false,
 }: CreateListModalProps) {
-  const { createList } = useList();
+  const { createList, updateList } = useList();
 
   const {
     register,
@@ -35,9 +40,10 @@ export default function CreateListModal({
     formState: { errors, isSubmitting },
     reset,
     watch,
+    setValue,
   } = useForm<CreateListSchema_Type>({
     resolver: zodResolver(createListSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       name: '',
       description: '',
       priority: 'low',
@@ -45,31 +51,41 @@ export default function CreateListModal({
     },
   });
 
+  useEffect(() => {
+    if (initialData) {
+      Object.entries(initialData).forEach(([key, value]) => {
+        // @ts-ignore
+        setValue(key as keyof CreateListSchema_Type, value as any);
+      });
+    }
+  }, [initialData, setValue]);
+
   const onSubmit = async (data: CreateListSchema_Type) => {
-    console.log('Data completo:', data);
     try {
-      // We only need to send the fields that are required for creation
-      // The backend will handle assigning id and owner
-      const listData = {
-        name: data.name,
-        description: data.description || '',
-        priority: data.priority,
-        status: data.status,
-      };
-
-      console.log('Submitting list data:', listData);
-      // @ts-ignore - TypeScript will complain about missing id and owner, but the API doesn't need them for creation
-      const newList = await createList(listData);
-      console.log('List created response:', newList);
-
-      if (onSuccess) {
-        onSuccess(newList);
+      if (isEdit && initialData?.id) {
+        const updateData = {
+          name: data.name,
+          description: data.description,
+          priority: data.priority,
+          status: data.status,
+        };
+        const updated = await updateList(initialData.id, updateData);
+        if (onSuccess) onSuccess(updated);
+      } else {
+        const listData = {
+          name: data.name,
+          description: data.description || '',
+          priority: data.priority,
+          status: data.status,
+        };
+        // @ts-ignore
+        const newList = await createList(listData);
+        if (onSuccess) onSuccess(newList);
       }
       reset();
       onClose();
-      console.log('✅ List created successfully!');
     } catch (error) {
-      console.error('🚩 Failed to create list:', error);
+      console.error('🚩 Failed to submit list:', error);
     }
   };
 

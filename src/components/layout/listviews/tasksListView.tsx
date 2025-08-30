@@ -8,9 +8,9 @@ import { TaskPriority } from '@/components/badges/taskPriority';
 
 interface TaskItemProps {
   task: Task;
-  onEdit: (task: Task) => boolean; // func to edit button
-  onDelete: (task: Task) => boolean; // func to delete button
-  onCheck: (task: Task) => boolean; // func to check task
+  onEdit: (task: Task) => void; // func to edit button
+  onDelete: (task: Task) => void; // func to delete button
+  onCheck: (task: Task) => void; // func to check task
   setCurrentTask: (task: Task) => void; // func to on select task
 }
 

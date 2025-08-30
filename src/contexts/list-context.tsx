@@ -5,6 +5,7 @@ import { CreateListSchema_Type } from '@/schemas/list';
 import { ListService } from '@/services/list.service'; 
 import { useAuth } from '@/contexts/auth-context';
 import { List } from '@/dto/list';
+import { ListUpdate } from "@/dto/listUpdate";
 
 interface ListContextType {
   lists: List[];
@@ -14,7 +15,7 @@ interface ListContextType {
   setCurrentList: (list: List | null) => void;
   refreshLists: () => Promise<void>;
   createList: (list: CreateListSchema_Type) => Promise<List>;
-  updateList: (id: number, list: { name?: string }) => Promise<List>;
+  updateList: (id: number, list: ListUpdate) => Promise<List>;
   deleteList: (id: number) => Promise<void>;
   // duplicateList: (id: number, newName?: string) => Promise<List>;
 }
@@ -79,7 +80,7 @@ export function ListProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateList = async (id: number, list: { name?: string }) => {
+  const updateList = async (id: number, list: ListUpdate) => {
     try {
       setError(null);
       const updatedList = await listService.update(id, list);

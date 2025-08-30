@@ -1,5 +1,6 @@
 import axiosApi from '@/axiosApi';
 import { List } from '@/dto/list';
+import { ListUpdate } from '@/dto/listUpdate';
 import { CreateListSchema_Type } from '@/schemas/list';
 
 export class ListService {
@@ -159,18 +160,13 @@ export class ListService {
   // update list
   public async update(
     id: number,
-    updatedList: {
-      name?: string;
-      description?: string;
-      priority?: string;
-      status?: string;
-    }
+    updatedList: ListUpdate
   ): Promise<List> {
     try {
       console.log(`🔄 [ListService] Updating list ${id}...`);
       console.log('📋 [ListService] Update data:', updatedList);
 
-      const response = await axiosApi.put<List>(`/lists/${id}/`, updatedList);
+      const response = await axiosApi.patch<List>(`/lists/${id}/`, updatedList);
 
       console.log('✅ [ListService] List updated successfully:', response.data);
       return response.data;

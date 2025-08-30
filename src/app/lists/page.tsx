@@ -24,7 +24,8 @@ import {
 } from '@tabler/icons-react';
 import { List, Priority, Status } from '@/dto/list';
 import CreateTaskModal from '@/components/forms/createTask';
-import { ListSchema_Type } from '@/schemas/list';
+import DeleteModal from '@/components/ui/DeleteModal';
+import { CreateListSchema_Type } from '@/schemas/list';
 
 export default function Workspaces() {
   console.log('Workspaces Component State: ', {
@@ -43,26 +44,18 @@ export default function Workspaces() {
     deleteList,
     refreshLists,
   } = useList();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateEditModalOpen, setIsCreateEditModalOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
-
-  const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this list?')) {
-      deleteList(id);
-    }
-  };
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [editList, setEditList] = useState<
+    (Partial<CreateListSchema_Type> & { id?: number }) | null
+  >(null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [deleteListId, setDeleteListId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleRetry = () => {
     refreshLists();
-  };
-
-  const handleCreateList = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
   };
 
   const getPriorityTitle = (priority: Priority) => {
@@ -142,12 +135,14 @@ export default function Workspaces() {
     );
   }
 
-  const handleOpenCreateModal = () => {
-    setIsCreateModalOpen(true);
+  const handleOpenCreateEditModal = () => {
+    setIsCreateEditModalOpen(true);
   };
 
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false);
+  const handleCloseCreateEditModal = () => {
+    setIsCreateEditModalOpen(false);
+    setEditList(null);
+    setIsEdit(false);
   };
 
   const handleCreateSuccess = () => {
@@ -167,13 +162,41 @@ export default function Workspaces() {
     // don't need to do anything, placewholder func
   };
 
+  const handleOpenDeleteModal = (id: number) => {
+    setDeleteListId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteList = async () => {
+    try {
+      setDeleteLoading(true);
+      await deleteList(deleteListId!);
+      setDeleteLoading(false);
+      refreshLists();
+
+      handleCloseDeleteModal();
+    } catch (err) {
+      console.error('🚩 Failed to delete list:', err);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteListId(null);
+  };
+
   return (
     <>
       <div className='container min-w-full w-full m-0 border-0 p-0'>
         <CreateSec.Root>
           <CreateSec.Container>
             <CreateSec.Label>Create a new List!</CreateSec.Label>
-            <CreateSec.Button onClick={handleOpenCreateModal}>
+            <CreateSec.Button
+              onClick={() => {
+                setIsEdit(false);
+                handleOpenCreateEditModal();
+              }}
+            >
               <span className='font-bold text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl 5xl:text-4xl'>
                 Add a List
               </span>
@@ -183,9 +206,11 @@ export default function Workspaces() {
         </CreateSec.Root>
 
         <CreateListModal
-          isOpen={isCreateModalOpen}
-          onClose={handleCloseCreateModal}
+          isOpen={isCreateEditModalOpen}
+          onClose={handleCloseCreateEditModal}
           onSuccess={handleCreateSuccess}
+          initialData={editList ? editList : undefined}
+          isEdit={isEdit}
         />
 
         <CreateTaskModal
@@ -257,15 +282,22 @@ export default function Workspaces() {
                   </LCard.Button>
                   <LCard.Button
                     title='edit list'
-                    onClick={() =>
-                      window.open(`/lists/${list.id}/edit`, '_self')
-                    }
+                    onClick={() => {
+                      setIsEdit(true);
+                      const { owner, ...editList } = list;
+                      setEditList(
+                        editList as Partial<CreateListSchema_Type> & {
+                          id?: number;
+                        }
+                      );
+                      handleOpenCreateEditModal();
+                    }}
                   >
                     <IconEdit color='#FAFAFA' className='size-[1em]' />
                   </LCard.Button>
                   <LCard.Button
                     title='delete list'
-                    onClick={() => handleDelete(list.id)}
+                    onClick={() => handleOpenDeleteModal(list.id)}
                   >
                     <IconTrash color='#FAFAFA' className='size-[1em]' />
                   </LCard.Button>
@@ -274,6 +306,13 @@ export default function Workspaces() {
             ))}
           </div>
         )}
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onDelete={handleDeleteList}
+          onClose={handleCloseDeleteModal}
+          resourceName='list'
+          loading={deleteLoading}
+        />
       </div>
     </>
   );

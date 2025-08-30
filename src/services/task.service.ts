@@ -7,6 +7,7 @@ import {
   TaskSchema_Type as Task,
   CreateTaskSchema_Type as CreateTask,
 } from '@/schemas/task';
+import { TaskUpdate } from '@/dto/taskUpdate';
 
 export class TaskService {
   private static instance: TaskService;
@@ -195,13 +196,7 @@ export class TaskService {
   public async update(
     id: number,
     listId: number,
-    updatedTask: { 
-      name?: string; 
-      description?: string; 
-      priority?: Priority; 
-      status?: Status; 
-      isComplete?: boolean 
-    }
+    updatedTask: TaskUpdate & {isComplete?: boolean }
   ): Promise<Task> {
     try {
       // validate data if provided
@@ -209,7 +204,8 @@ export class TaskService {
         this.validateTask(updatedTask);
       }
 
-      const response = await axiosApi.put<Task>(`/lists/${listId}/tasks/${id}/`, updatedTask);
+      console.log("📋 [TaskService] Update data:", updatedTask);
+      const response = await axiosApi.patch<Task>(`/lists/${listId}/tasks/${id}/`, updatedTask);
       return response.data;
     } catch (error: any) {
       console.error(`❌ Error updating task ${id}:`, error);
@@ -227,9 +223,9 @@ export class TaskService {
   }
 
   // delete task
-  public async delete(id: number): Promise<void> {
+  public async delete(id: number, listId: number): Promise<void> {
     try {
-      await axiosApi.delete(`/tasks/${id}`);
+      await axiosApi.delete(`lists/${listId}/tasks/${id}/`);
     } catch (error: any) {
       console.error(`❌ Error deleting task ${id}:`, error);
 

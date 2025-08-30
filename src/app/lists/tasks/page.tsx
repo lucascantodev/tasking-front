@@ -17,6 +17,7 @@ import { useTasks } from '@/contexts/tasks-context';
 import { useState, useEffect } from 'react';
 import { Task } from '@/dto/task';
 import CreateTaskModal from '@/components/forms/createTask';
+import DeleteModal from '@/components/ui/DeleteModal';
 
 export default function TasksPage() {
   const { currentList } = useList();
@@ -25,12 +26,20 @@ export default function TasksPage() {
     isLoading,
     error,
     currentTask,
+    deleteTaskService,
+    toggleComplete,
     setCurrentTask,
     getTasksByListId,
     refreshTasks,
   } = useTasks();
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [isCreateEditModalOpen, setIsCreateEditModalOpen] =
+    useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleRetry = () => {
     refreshTasks();
@@ -57,16 +66,41 @@ export default function TasksPage() {
     }
   };
 
-  const handleOpenCreateModal = () => {
-    setIsCreateModalOpen(true);
+  const handleOpenCreateEditModal = () => {
+    setIsCreateEditModalOpen(true);
   };
 
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false);
+  const handleCloseCreateEditModal = () => {
+    setIsCreateEditModalOpen(false);
+    setIsEdit(false);
+    setEditTask(null);
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateEditSuccess = () => {
     refreshTasks();
+  };
+
+  const handleOpenDeleteModal = (task: Task) => {
+    setDeleteTaskId(task.id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteTask = async () => {
+    try {
+      setDeleteLoading(true);
+      await deleteTaskService(deleteTaskId!, currentList!.id);
+      setDeleteLoading(false);
+      refreshTasks();
+
+      handleCloseDeleteModal();
+    } catch (err) {
+      console.error('🚩 Failed to delete list:', err);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteTaskId(null);
   };
 
   if (error || !currentList) {
@@ -111,7 +145,7 @@ export default function TasksPage() {
       <CreateSec.Root>
         <CreateSec.Container>
           <CreateSec.Label>Create a new Task!</CreateSec.Label>
-          <CreateSec.Button onClick={handleOpenCreateModal}>
+          <CreateSec.Button onClick={handleOpenCreateEditModal}>
             <span className='font-bold text-sm sm:text-base md:text-lg lg:text-xl 2xl:text-2xl 4xl:text-3xl 5xl:text-4xl'>
               Add a Task
             </span>
@@ -122,10 +156,12 @@ export default function TasksPage() {
       {/* END - Create a new section */}
 
       <CreateTaskModal
-        isOpen={isCreateModalOpen}
+        isOpen={isCreateEditModalOpen}
         currentListId={currentList.id}
-        onClose={handleCloseCreateModal}
-        onSuccess={handleCreateSuccess}
+        onClose={handleCloseCreateEditModal}
+        onSuccess={handleCreateEditSuccess}
+        initialData={editTask ? editTask : undefined}
+        isEdit={isEdit}
       />
 
       <section className='w-full h-[80%] min-h-[90%] mb-4 border-y-1 border-white'>
@@ -138,18 +174,14 @@ export default function TasksPage() {
                   <TaskList.TaskItem
                     key={i}
                     task={v}
-                    onEdit={(task) => {
-                      console.log('Task Edited');
-                      return true;
+                    onEdit={() => {
+                      setEditTask(v);
+                      setIsEdit(true);
+                      handleOpenCreateEditModal();
                     }}
-                    onDelete={(task) => {
-                      console.log('Task Deleted');
-                      return true;
-                    }}
+                    onDelete={handleOpenDeleteModal}
                     onCheck={(task) => {
-                      task.isComplete = !task.isComplete;
-                      console.log('Task Checked');
-                      return true;
+                      toggleComplete(task.id, task.listId);
                     }}
                     setCurrentTask={handleTaskSelect}
                   />
@@ -244,6 +276,13 @@ export default function TasksPage() {
           )}
         </div>
       </section>
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onDelete={handleDeleteTask}
+        resourceName='task'
+        loading={deleteLoading}
+      />
     </main>
   );
 }
