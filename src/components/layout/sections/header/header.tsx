@@ -29,7 +29,7 @@ export default function Header() {
         border-b-[1px] 2xl:border-b-[3px] bg-background text-foreground
       '
     >
-      <Logo href='/workspaces' />
+      <Logo href='/' />
       <div className='flex items-center gap-4'>
         <button
           onClick={handleLogout}

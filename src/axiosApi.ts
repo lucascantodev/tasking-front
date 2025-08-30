@@ -148,7 +148,7 @@ axiosApi.interceptors.response.use(
           if (typeof window !== 'undefined') {
             // redirect preserving current URL
             const currentPath = window.location.pathname;
-            window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+            window.location.href = `/?returnUrl=${encodeURIComponent(currentPath)}`;
           }
 
           return Promise.reject(error);
@@ -158,7 +158,7 @@ axiosApi.interceptors.response.use(
         tokenManager.clearAccessToken();
 
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.location.href = '/';
         }
 
         return Promise.reject(error);
