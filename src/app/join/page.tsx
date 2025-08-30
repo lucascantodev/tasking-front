@@ -6,7 +6,9 @@ import { useAuth } from '@/contexts/auth-context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import signUpSchema, { SignUpSchema_Type } from '@/schemas/signUp';
-import { FaGoogle } from 'react-icons/fa';
+import TaskingLogo from '@/components/tasking/logo';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function Join() {
   const router = useRouter();
@@ -47,174 +49,151 @@ export default function Join() {
   };
 
   return (
-    <div className='grid min-h-screen bg-zinc-900 text-zinc-100 p-4'>
-      <div className='flex flex-col max-w-md w-full mx-auto my-auto p-8 bg-zinc-800 rounded-xl shadow-lg'>
-        <div className='flex flex-col items-center justify-center mb-8'>
-          <h1 className='text-4xl font-bold'>TASKING</h1>
-          <p className='text-2xl mt-4 animate-fadeIn'>
+    <div className='min-h-screen bg-black text-white flex'>
+      {/* Left side - Logo and tagline */}
+      <div className='hidden lg:flex lg:flex-1 flex-col items-center justify-center bg-black px-8'>
+        <div className='text-center'>
+          <TaskingLogo className='text-white mb-6' />
+          <p className='text-zinc-300 text-lg max-w-sm'>
             Prioritize your world with tasks
           </p>
         </div>
+      </div>
 
-        <div className='text-center mb-8'>
-          <p className='text-zinc-400'>Create your account</p>
-        </div>
-
-        {error && (
-          <div className='mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-500 text-sm'>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-          <div className='space-y-2'>
-            <label htmlFor='name' className='block text-sm font-medium'>
-              Name
-            </label>
-            <input
-              id='name'
-              type='text'
-              {...register('name')}
-              autoComplete='name'
-              className={`
-                appearance-none relative block w-full px-3 py-2 bg-white border 
-                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
-                ${
-                  errors.name
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300'
-                }
-              `}
-              placeholder='Your name'
-            />
-            {errors.name && (
-              <p className='text-red-400 text-sm mt-1'>{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className='space-y-2'>
-            <label htmlFor='email' className='block text-sm font-medium'>
-              Email
-            </label>
-            <input
-              id='email'
-              type='email'
-              {...register('email')}
-              autoComplete='email'
-              className={`
-                appearance-none relative block w-full px-3 py-2 bg-white border 
-                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
-                ${
-                  errors.email
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300'
-                }
-              `}
-              placeholder='Email address'
-            />
-            {errors.email && (
-              <p className='text-red-400 text-sm mt-1'>
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div className='space-y-2'>
-            <label htmlFor='password' className='block text-sm font-medium'>
-              Password
-            </label>
-            <input
-              id='password'
-              type='password'
-              {...register('password')}
-              autoComplete='new-password'
-              className={`
-                appearance-none relative block w-full px-3 py-2 bg-white border 
-                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
-                ${
-                  errors.password
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300'
-                }
-              `}
-              placeholder='Password'
-            />
-            {errors.password && (
-              <p className='text-red-400 text-sm mt-1'>
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div className='space-y-2'>
-            <label
-              htmlFor='confirmPassword'
-              className='block text-sm font-medium'
-            >
-              Confirm Password
-            </label>
-            <input
-              id='confirmPassword'
-              type='password'
-              {...register('confirmPassword')}
-              autoComplete='new-password'
-              className={`
-                appearance-none relative block w-full px-3 py-2 bg-white border 
-                placeholder-gray-500 text-gray-900 rounded-md focus:outline-none 
-                focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm
-                ${
-                  errors.confirmPassword
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300'
-                }
-              `}
-              placeholder='Confirm password'
-            />
-            {errors.confirmPassword && (
-              <p className='text-red-400 text-sm mt-1'>
-                {errors.confirmPassword.message}
-              </p>
-            )}
+      {/* Right side - Join form */}
+      <div className='flex-1 lg:max-w-md xl:max-w-lg 2xl:max-w-xl flex items-center justify-center px-4 sm:px-6 lg:px-8'>
+        <div className='w-full max-w-sm space-y-8'>
+          {/* Mobile logo */}
+          <div className='lg:hidden text-center mb-8'>
+            <TaskingLogo className='text-white mb-4' />
+            <p className='text-zinc-300 text-sm'>
+              Prioritize your world with tasks
+            </p>
           </div>
 
           <div>
-            <button
-              type='submit'
-              disabled={isSubmitting}
-              className='w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50'
-            >
-              {isSubmitting ? 'Creating account...' : 'Create account'}
-            </button>
+            <h2 className='text-3xl font-bold text-white'>Join</h2>
           </div>
-        </form>
 
-        <div className='flex items-center my-6'>
-          <div className='flex-grow border-t border-zinc-600'></div>
-          <span className='flex-shrink mx-4 text-zinc-400 text-sm'>Or</span>
-          <div className='flex-grow border-t border-zinc-600'></div>
+          {error && (
+            <div className='mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-500 text-sm'>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+            <div className='space-y-2'>
+              <Input
+                id='name'
+                type='text'
+                {...register('name')}
+                autoComplete='name'
+                placeholder='Name'
+                className={`
+                  bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400
+                  focus:border-zinc-500 focus:ring-zinc-500/20
+                  ${
+                    errors.name
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : ''
+                  }
+                `}
+              />
+              {errors.name && (
+                <p className='text-red-400 text-sm mt-1'>{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                id='email'
+                type='email'
+                {...register('email')}
+                autoComplete='email'
+                placeholder='Email'
+                className={`
+                  bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400
+                  focus:border-zinc-500 focus:ring-zinc-500/20
+                  ${
+                    errors.email
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : ''
+                  }
+                `}
+              />
+              {errors.email && (
+                <p className='text-red-400 text-sm mt-1'>
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                id='password'
+                type='password'
+                {...register('password')}
+                autoComplete='new-password'
+                placeholder='Password'
+                className={`
+                  bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400
+                  focus:border-zinc-500 focus:ring-zinc-500/20
+                  ${
+                    errors.password
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : ''
+                  }
+                `}
+              />
+              {errors.password && (
+                <p className='text-red-400 text-sm mt-1'>
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                id='confirmPassword'
+                type='password'
+                {...register('confirmPassword')}
+                autoComplete='new-password'
+                placeholder='Confirm password'
+                className={`
+                  bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400
+                  focus:border-zinc-500 focus:ring-zinc-500/20
+                  ${
+                    errors.confirmPassword
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : ''
+                  }
+                `}
+              />
+              {errors.confirmPassword && (
+                <p className='text-red-400 text-sm mt-1'>
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Button
+                type='submit'
+                disabled={isSubmitting}
+                className='w-full bg-zinc-700 hover:bg-zinc-600 text-white border-zinc-600'
+              >
+                {isSubmitting ? 'Creating account...' : 'Create account'}
+              </Button>
+            </div>
+
+            <div className='text-center'>
+              <a href='/' className='text-sm text-zinc-400 hover:text-zinc-300'>
+                Sign in
+              </a>
+            </div>
+          </form>
+
         </div>
-
-        <div className='grid grid-cols-2'>
-          <button
-            type='button'
-            disabled={isSubmitting}
-            className='gray-button-minimal col-span-2'
-            onClick={() => console.log('🚩🚩Google login')}
-          >
-            <FaGoogle />
-            <span className='text-sm'>Google</span>
-          </button>
-        </div>
-
-        <p className='mt-8 text-center text-sm text-zinc-400'>
-          Already have an account?{' '}
-          <a href='/' className='link-minimal'>
-            Sign in
-          </a>
-        </p>
       </div>
     </div>
   );
