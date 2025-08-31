@@ -15,6 +15,7 @@ import { BottomUpModal } from '@/components/modals/bottomUpModal';
 import { useList } from '@/contexts/list-context';
 import { useTasks } from '@/contexts/tasks-context';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Task } from '@/dto/task';
 import CreateTaskModal from '@/components/forms/createTask';
 import DeleteModal from '@/components/ui/DeleteModal';
@@ -22,7 +23,6 @@ import DeleteModal from '@/components/ui/DeleteModal';
 export default function TasksPage() {
   const { currentList } = useList();
   const {
-    tasks,
     isLoading,
     error,
     currentTask,
@@ -32,6 +32,7 @@ export default function TasksPage() {
     getTasksByListId,
     refreshTasks,
   } = useTasks();
+  const router = useRouter();
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [isCreateEditModalOpen, setIsCreateEditModalOpen] =
     useState<boolean>(false);
@@ -41,7 +42,19 @@ export default function TasksPage() {
   const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Auto redirect to lists page if can't find reference to current list 
+  // after page finishes rendering
+  useEffect(() => {
+    if (!currentList) 
+      router.push('/lists');
+  }, [currentList])
+
   const handleRetry = () => {
+    // Push back to lists page if can't find reference to current list
+    if (!currentList) {
+      router.push('/lists');
+    }
+
     refreshTasks();
   };
 
@@ -104,10 +117,9 @@ export default function TasksPage() {
   };
 
   if (error || !currentList) {
-    const actualError =
-      !error && !currentList
-        ? "Couldn't find selected list data. Try login on or retry."
-        : null;
+    const missedListMsg = !currentList
+      ? "Couldn't find referenced list. Trying to Auto redirect to lists page..."
+      : '';
 
     return (
       <div className='flex flex-col justify-center items-center h-64 space-y-6'>
@@ -118,7 +130,8 @@ export default function TasksPage() {
               Failed to load tasks
             </h3>
             <p className='text-gray-600 max-w-md'>
-              {actualError ||
+              {error ||
+                missedListMsg ||
                 'Something went wrong while loading your tasks. Please try again.'}
             </p>
           </div>
